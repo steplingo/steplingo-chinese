@@ -1,0 +1,42 @@
+{
+  "name": "Steplingo",
+  "short_name": "Steplingo",
+  "description": "言語学習アプリ（オフライン対応）",
+  "start_url": "index.html#home",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#304ffe",
+  "background_color": "#f7f8fb",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screens/home-1080x1920.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "ホーム"
+    },
+    {
+      "src": "screens/lesson-1080x1920.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "レッスン"
+    }
+  ]
+
+}
