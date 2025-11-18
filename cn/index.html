@@ -5925,6 +5925,23 @@ body.modal-open main {
 #lessonSel + label {
   display: none !important;
 }
+.lesson-item {
+  position: relative;
+}
+
+.lesson-item.locked {
+  opacity: 0.5;
+  pointer-events: auto; /* クリックは JS 側で拾う */
+}
+
+.lock-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #444;
+}
 
 </style>
 <script>
@@ -6226,6 +6243,46 @@ document.querySelectorAll('a[href^="/cn/step"]').forEach(a => {
             window.location.href = "/pricing/";
         });
     }
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // PROフラグ読み取り
+  const PRO_KEY = "steplingo_pro_chinese";
+  const isPro = localStorage.getItem(PRO_KEY) === "true";
+
+  // 無料ステップ（開始〜終了）
+  const freeSteps = ["step0-1", "step0-2", "step0-3", "step1", "step2", "step3"];
+
+  // すべてのレッスンカードを取得
+  document.querySelectorAll(".lesson-item").forEach(item => {
+    const href = item.getAttribute("href"); // 例: "/cn/lessons/step4.html"
+    if (!href) return;
+
+    // step名を取り出し
+    const match = href.match(/step[0-9\-]+/);
+    if (!match) return;
+    const step = match[0]; // "step4" など
+
+    const isFree = freeSteps.includes(step);
+
+    // 非PROユーザー ＆ PROステップ → ロック付ける
+    if (!isPro && !isFree) {
+      item.classList.add("locked");
+
+      // ロックアイコンを追加
+      const lock = document.createElement("span");
+      lock.className = "lock-icon";
+      lock.textContent = "🔒";
+      item.appendChild(lock);
+
+      // クリック時に料金ページへ誘導
+      item.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = "/pricing/";
+      });
+    }
+  });
 });
 </script>
 

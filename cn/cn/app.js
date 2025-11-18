@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // }
 });
 /* ====== PRO フラグ読み込み ====== */
-window.SteplingoPro = localStorage.getItem("steplingo_pro") === "true";
+window.SteplingoPro = isProUser();
 
 /* ====== ステップ解放チェック関数（必要なら他でも使える） ====== */
 window.isStepUnlocked = function(stepId) {
