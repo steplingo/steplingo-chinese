@@ -2,7 +2,7 @@
   "name": "Steplingo",
   "short_name": "Steplingo",
   "description": "言語学習アプリ（オフライン対応）",
-  "start_url": "index.html#home",
+  "start_url": "cn/index.html#home",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

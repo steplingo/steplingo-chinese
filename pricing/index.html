@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>料金プラン | Steplingo World</title>
+
+  <style>
+    /* ===== ベース ===== */
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    /* ===== ヘッダー（トップページと同じデザイン） ===== */
+
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .main-nav a {
+      color: #333;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .main-nav a:hover {
+      text-decoration: underline;
+    }
+
+    .mascot-icon {
+      width: 56px;  /* ← ここでアイコンを小さく固定 */
+      height: auto;
+    }
+
+    /* ===== Pricing ヒーロー部分 ===== */
+
+    .pricing-hero {
+      text-align: center;
+      padding: 40px 20px 10px;
+    }
+
+    .pricing-hero h1 {
+      font-size: 2rem;
+      margin: 0 0 8px;
+    }
+
+    .pricing-hero p {
+      margin: 0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    /* ===== Pricing カード ===== */
+
+    .pricing-section {
+      max-width: 900px;
+      margin: 20px auto 60px;
+      padding: 0 20px 40px;
+    }
+
+    .plan-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 30px;
+      margin: 20px 0;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      text-align: left;
+    }
+
+    .plan-card.disabled {
+      opacity: 0.6;
+    }
+
+    .plan-name {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      color: #0066cc;
+    }
+
+    .plan-price {
+      margin: 0 0 16px;
+      font-weight: 700;
+    }
+
+    .plan-desc {
+      margin: 0 0 16px;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    .plan-desc ul {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+
+    .plan-desc li {
+      margin-bottom: 4px;
+    }
+
+    .plan-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #1e64d0;
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .plan-btn.disabled {
+      background: #ccc;
+      cursor: default;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 共通ヘッダー -->
+  <header class="header">
+    <div class="header-inner">
+      <nav class="main-nav">
+        <a href="/apps/">アプリ一覧</a>
+        <a href="/pricing/">料金</a>
+        <a href="/docs/">学習資料</a>
+      </nav>
+      <img src="/icons/icon-512.png" class="mascot-icon" alt="Steplingo" />
+    </div>
+  </header>
+
+  <!-- 料金ページのヒーロー文言 -->
+  <section class="pricing-hero">
+    <h1>料金プラン</h1>
+    <p>Steplingo Chinese PRO（買い切りプラン）</p>
+  </section>
+
+  <!-- 料金カード -->
+  <section class="pricing-section">
+    <!-- プラン1：中国語 PRO -->
+    <div class="plan-card">
+      <h3 class="plan-name">Steplingo Chinese PRO（買い切り）</h3>
+      <p class="plan-price">¥2,000</p>
+      <div class="plan-desc">
+        <ul>
+          <li>33ステップ（＋発音3ステップ）すべて開放</li>
+          <li>発音学習PRO機能（Ting-Ting）搭載</li>
+          <li>買い切り：一度の購入で永久利用可能</li>
+        </ul>
+      </div>
+      <a
+        href="https://buy.stripe.com/test_cNibJ0gQQdCNam05ZebQY00"
+        class="plan-btn"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        今すぐ購入する（¥2,000）
+      </a>
+    </div>
+
+    <!-- プラン2：韓国語（準備中） -->
+    <div class="plan-card disabled">
+      <h3 class="plan-name">Steplingo Korean PRO（準備中）</h3>
+      <p class="plan-price">-</p>
+      <p class="plan-desc">韓国語学習アプリの PRO プランは準備中です。</p>
+      <button class="plan-btn disabled" disabled>準備中</button>
+    </div>
+
+    <!-- プラン3：日本語（準備中） -->
+    <div class="plan-card disabled">
+      <h3 class="plan-name">Steplingo Japanese PRO（準備中）</h3>
+      <p class="plan-price">-</p>
+      <p class="plan-desc">日本語学習アプリの PRO プランは準備中です。</p>
+      <button class="plan-btn disabled" disabled>準備中</button>
+    </div>
+  </section>
+</body>
+</html>
