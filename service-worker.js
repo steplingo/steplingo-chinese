@@ -1,5 +1,5 @@
 // ==== Cache versioning ====
-const CACHE_VERSION = 'v7';                 // ← 変更時は v5, v6…と上げる
+const CACHE_VERSION = 'v8';                 // ← 変更時は v5, v6…と上げる
 const CACHE_NAME    = `steplingo-${CACHE_VERSION}`;
 const CORE = [
   '/',                 // Cloudflare 側のルート。必要に応じて外してもOK
