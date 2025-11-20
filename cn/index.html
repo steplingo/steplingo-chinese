@@ -6493,13 +6493,11 @@ document.querySelectorAll(".step-btn").forEach(btn => {
     window.location.href = `/cn/#lesson=${stepId}`;
   });
 });
-
-/* === Stripe 購入後の処理 (?pro=1) === */
-const params = new URLSearchParams(window.location.search);
-if (params.get("pro") === "1") {
-  localStorage.setItem(PRO_KEY, "true");
-  window.location.href = "/cn/#home";
-}
+/* === PRO 判定ログ === */
+  console.log(
+    "[Steplingo] Chinese PRO status:",
+    userHasPro ? "PRO ユーザー" : "FREE ユーザー"
+  );
 </script>
 
 </body></html>
