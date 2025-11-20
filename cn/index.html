@@ -6499,5 +6499,12 @@ document.querySelectorAll(".step-btn").forEach(btn => {
     userHasPro ? "PRO ユーザー" : "FREE ユーザー"
   );
 </script>
-
+<script>
+    // === Stripe 購入後の処理 (?pro=1) ===
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("pro") === "1") {
+      localStorage.setItem(PRO_KEY, "true");
+      window.location.href = "/cn/#home";
+    }
+  </script>
 </body></html>
