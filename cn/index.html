@@ -6463,13 +6463,16 @@ if ('serviceWorker' in navigator) {
 const userHasPro = localStorage.getItem(PRO_KEY) === "true";
 
 /* === FREE / PRO Step 判定 === */
+/* === FREE / PRO Step 判定 === */
 function isProStep(stepId) {
-  const freeSteps = ["0-1","0-2","0-3","1","2","3"];
-  if (freeSteps.includes(stepId)) return false;  // FREE
+  const id = Number(stepId);
 
-  const num = Number(stepId);
-  return num >= 4 && num <= 33;  // PRO
+  // FREE: Step0-1〜Step3 = id 0〜5
+  if (id <= 5) return false;  // FREE
+
+  return true;                // PRO: 6〜35
 }
+
 
 /* === Paywall === */
 function openPaywallModal() {
