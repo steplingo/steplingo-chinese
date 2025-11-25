@@ -13,6 +13,12 @@ function isProUser() {
 
 // ページ読み込み時に状態を確認
 document.addEventListener("DOMContentLoaded", () => {
+  // === Stripe 購入後の処理 ===
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("pro") === "1") {
+    localStorage.setItem(PRO_KEY, "true");
+    window.location.href = "/cn/#home";
+  }
   const pro = isProUser();
 
   console.log("[Steplingo] Chinese PRO status:", pro ? "PRO ユーザー" : "通常ユーザー");

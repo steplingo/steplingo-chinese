@@ -6458,56 +6458,5 @@ if ('serviceWorker' in navigator) {
 <!-- ====== END Paywall Modal ====== -->
 
 <script src="/cn/app.js?v=1"></script>
-<script>
-/* === PRO フラグ === */
-const userHasPro = localStorage.getItem(PRO_KEY) === "true";
 
-/* === FREE / PRO Step 判定 === */
-/* === FREE / PRO Step 判定 === */
-function isProStep(stepId) {
-  const id = Number(stepId);
-
-  // FREE: Step0-1〜Step3 = id 0〜5
-  if (id <= 5) return false;  // FREE
-
-  return true;                // PRO: 6〜35
-}
-
-
-/* === Paywall === */
-function openPaywallModal() {
-  document.getElementById("paywallModal").classList.add("show");
-}
-function closePaywallModal() {
-  document.getElementById("paywallModal").classList.remove("show");
-}
-
-/* === Step ボタン制御 === */
-document.querySelectorAll(".step-btn").forEach(btn => {
-  btn.addEventListener("click", e => {
-    const stepId = e.currentTarget.dataset.step;
-
-    if (isProStep(stepId) && !userHasPro) {
-      openPaywallModal();
-      return;
-    }
-
-    // 元の遷移方式
-    window.location.href = `/cn/#lesson=${stepId}`;
-  });
-});
-/* === PRO 判定ログ === */
-  console.log(
-    "[Steplingo] Chinese PRO status:",
-    userHasPro ? "PRO ユーザー" : "FREE ユーザー"
-  );
-</script>
-<script>
-    // === Stripe 購入後の処理 (?pro=1) ===
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("pro") === "1") {
-      localStorage.setItem(PRO_KEY, "true");
-      window.location.href = "/cn/#home";
-    }
-  </script>
 </body></html>
