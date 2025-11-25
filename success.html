@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Success</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 40px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Thank you!</h1>
+  <p>Your PRO access is now activated.</p>
+
+  <script>
+    // PROフラグを保存
+    localStorage.setItem("userHasPro", "true");
+
+    // アプリTOPへリダイレクト（言語に合わせてもOK）
+    window.location.href = "/index.html";
+  </script>
+</body>
+</html>

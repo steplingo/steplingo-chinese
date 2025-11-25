@@ -46,13 +46,15 @@
     <a href="/" class="btn">トップに戻る</a>
   </div>
 <script>
-  // Webhook → success.html に到達した時点で PRO付与
+  // 決済成功 → PRO フラグをすべて ON にする
   localStorage.setItem("steplingo_pro_chinese", "true");
+  localStorage.setItem("steplingo_pro", "true");
+  localStorage.setItem("userHasPro", "true");
 
-  // 数秒後にアプリトップに戻す（任意）
+  // 数秒後にアプリトップ（中国語TOP）に戻す
   setTimeout(() => {
-    window.location.href = "/";  
-  }, 2500);
+    window.location.href = "/cn/";
+  }, 1500);
 </script>
 
 </body>
