@@ -6407,24 +6407,7 @@ if ('serviceWorker' in navigator) {
   window.matchMedia('(display-mode: standalone)').addEventListener?.('change', refreshInstallUI);
 })();
 </script>
-<!-- Paywall Modal -->
-<div id="paywallBackdrop" class="paywall-modal-backdrop" hidden>
-  <div class="paywall-modal" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
-    <h3 id="paywallTitle">続きはプレミアムで</h3>
-    <p>Step 1–5（＋発音0-1〜0-3）は無料。以降の全ステップ・復習・記録同期はプレミアムでご利用いただけます。</p>
-    <div class="paywall-actions">
-      <!-- ↓↓↓ Stripe Payment Link / Checkout のURLをあとで差し替え ↓↓↓ -->
-      <a class="pay-cta" href="https://buy.stripe.com/test_monthly_link" target="_blank" rel="noopener">月額で始める</a>
-      <a class="pay-cta alt" href="https://buy.stripe.com/test_yearly_link" target="_blank" rel="noopener">年額でお得に</a>
-      <!-- ↑↑↑ 差し替えポイント ↑↑↑ -->
-      <a class="pay-cancel" href="#" id="payCancel" data-paywall-close>あとで</a>
 
-    </div>
-    <div class="small-note">
-      支払い後にアプリへ戻ると自動でプレミアムが有効になります（当面はテストフロー。後述の“本番フロー”でサーバ連携に切替）。
-    </div>
-  </div>
-</div>
 <footer style="margin-top: 60px; padding: 20px; background: #f7f7f7; text-align: center; font-size: 0.9em; color: #555; line-height: 1.6;">
   <p>© 2025 Steplingo Languages / All rights reserved.</p>
   <p>
@@ -6441,20 +6424,21 @@ if ('serviceWorker' in navigator) {
   </p>
 </footer>
 <!-- ====== Paywall Modal ====== -->
-<div id="paywallModal" class="paywall-overlay">
-  <div class="paywall-box">
+<div id="paywallModal" class="paywall-modal">
+  <div class="paywall-content">
     <h2>Steplingo Chinese PRO</h2>
-    <p>Step4〜Step33 をご利用いただくには PRO の購入が必要です。</p>
-    <p>一度購入すれば永久に利用できます。</p>
+    <p>全ステップ + 音声学習 PRO機能<br>買い切り ¥2,000</p>
 
-    <a class="paywall-buy-btn" 
-       href="https://buy.stripe.com/test_cNibJ0gQQdCNamO5ZebQY00">
-       PRO を購入する
-    </a>
+    <button id="buyNowBtn" class="buy-btn">
+      ¥2,000 で購入する
+    </button>
 
-    <button class="paywall-close" onclick="closePaywallModal()">閉じる</button>
+    <button id="closePaywallBtn" class="close-btn">
+      後で見る
+    </button>
   </div>
 </div>
+
 <!-- ====== END Paywall Modal ====== -->
 
 <script src="/cn/app.js?v=1"></script>

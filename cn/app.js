@@ -22,6 +22,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const pro = isProUser();
 
   console.log("[Steplingo] Chinese PRO status:", pro ? "PRO ユーザー" : "通常ユーザー");
+  // === Paywall モーダルのボタン処理 ===
+const buyNowBtn = document.getElementById("buyNowBtn");
+const closePaywallBtn = document.getElementById("closePaywallBtn");
+
+if (buyNowBtn) {
+  buyNowBtn.addEventListener("click", () => {
+    window.location.href = "https://buy.stripe.com/7sYaEW1VJfgA6LF9bPcZa00";
+  });
+}
+
+if (closePaywallBtn) {
+  closePaywallBtn.addEventListener("click", () => {
+    document.getElementById("paywallModal").classList.remove("show");
+  });
+}
+
 // FREE / PRO ロック処理
 document.querySelectorAll("[data-pro]").forEach(btn => {
   const requirePro = btn.getAttribute("data-pro") === "true";
@@ -34,7 +50,7 @@ document.querySelectorAll("[data-pro]").forEach(btn => {
     btn.classList.add("locked");  // CSSのグレー化用（あとで追加可）
     btn.addEventListener("click", () => {
      btn.addEventListener("click", () => {
-  window.location.href = "https://buy.stripe.com/test_9B6dR83007ep8eG3R6bQY01";
+  window.location.href = "https://buy.stripe.com/7sYaEW1VJfgA6LF9bPcZa00";
 });
  
       // → 後で Stripe Payment Link に直リンク or pricing ページで誘導
@@ -55,7 +71,7 @@ window.SteplingoPro = isProUser();
 
 /* ====== ステップ解放チェック関数（必要なら他でも使える） ====== */
 window.isStepUnlocked = function(stepId) {
-    const FREE_STEPS = ["0-1","0-2","0-3","1","2","3"];
+    const FREE_STEPS = ["0","1","2","3","4","5"];
     if (FREE_STEPS.includes(stepId)) return true;
     return window.SteplingoPro;
 };
