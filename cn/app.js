@@ -47,16 +47,21 @@ document.querySelectorAll("[data-pro]").forEach(btn => {
 
   // 無料ユーザーはロック
   if (!userHasPro) {
-    btn.classList.add("locked");  // CSSのグレー化用（あとで追加可）
-    btn.addEventListener("click", () => {
-     btn.addEventListener("click", () => {
-  window.location.href = "https://buy.stripe.com/7sYaEW1VJfgA6LF9bPcZa00";
-});
- 
-      // → 後で Stripe Payment Link に直リンク or pricing ページで誘導
+    btn.classList.add("locked");
+
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Paywall モーダルを開く
+      const modal = document.getElementById("paywallModal");
+      if (modal) {
+        modal.classList.add("show");
+      }
     });
   }
 });
+
 
   // ここに「ロック解除」「バッジ表示」などを今後追加していきます
   // 例：
