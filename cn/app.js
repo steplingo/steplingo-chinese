@@ -40,7 +40,8 @@ if (closePaywallBtn) {
 
 // FREE / PRO ロック処理
 document.querySelectorAll("[data-pro]").forEach(btn => {
-  const requirePro = btn.getAttribute("data-pro") === "true";
+  const requirePro = btn.dataset.pro?.toLowerCase() === "true";
+
 
   // 無料ステップ
   if (!requirePro) return;
