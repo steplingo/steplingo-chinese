@@ -7,6 +7,16 @@ const userHasPro =
 // 中国語アプリ用の PRO フラグキー
 const PRO_KEY = "steplingo_pro_chinese";
 
+// ===== Stripe 決済URL =====
+const STRIPE_URL_TEST = "https://buy.stripe.com/test_9B6dR83007ep8eG3R6bQY01";
+const STRIPE_URL_PROD = "https://buy.stripe.com/7sYaEW1VJfgA6LF9bPcZa00";  // 本番リンク
+
+// ★ここだけ true/false を手で切り替える（開発者用）
+const USE_TEST_STRIPE = true;   // テスト中
+// const USE_TEST_STRIPE = false; // 本番運用するとき
+
+const STRIPE_URL = USE_TEST_STRIPE ? STRIPE_URL_TEST : STRIPE_URL_PROD;
+
 function isProUser() {
   return localStorage.getItem(PRO_KEY) === "true" || localStorage.getItem(PRO_KEY) === "1";
 }
@@ -22,47 +32,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const pro = isProUser();
 
   console.log("[Steplingo] Chinese PRO status:", pro ? "PRO ユーザー" : "通常ユーザー");
-  // === Paywall モーダルのボタン処理 ===
-const buyNowBtn = document.getElementById("buyNowBtn");
-const closePaywallBtn = document.getElementById("closePaywallBtn");
-
-if (buyNowBtn) {
-  buyNowBtn.addEventListener("click", () => {
-    window.location.href = "https://buy.stripe.com/7sYaEW1VJfgA6LF9bPcZa00";
-  });
-}
-
-if (closePaywallBtn) {
-  closePaywallBtn.addEventListener("click", () => {
-    document.getElementById("paywallModal").classList.remove("show");
-  });
-}
-
 // FREE / PRO ロック処理
 document.querySelectorAll("[data-pro]").forEach(btn => {
-  const requirePro = btn.dataset.pro?.toLowerCase() === "true";
-console.log("[DEBUG] step", btn.dataset.step, "requirePro=", requirePro);
+  const requirePro = btn.getAttribute("data-pro") === "true";
 
   // 無料ステップ
   if (!requirePro) return;
 
   // 無料ユーザーはロック
   if (!userHasPro) {
-    btn.classList.add("locked");
+    btn.classList.add("locked");  // CSSのグレー化用（あとで追加可）
+    btn.addEventListener("click", () => {
+     btn.addEventListener("click", () => {
+  window.location.href = STRIPE_URL;
 
-    btn.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // Paywall モーダルを開く
-      const modal = document.getElementById("paywallModal");
-      if (modal) {
-        modal.classList.add("show");
-      }
+});
+ 
+      // → 後で Stripe Payment Link に直リンク or pricing ページで誘導
     });
   }
 });
-
 
   // ここに「ロック解除」「バッジ表示」などを今後追加していきます
   // 例：
@@ -77,7 +66,7 @@ window.SteplingoPro = isProUser();
 
 /* ====== ステップ解放チェック関数（必要なら他でも使える） ====== */
 window.isStepUnlocked = function(stepId) {
-    const FREE_STEPS = ["0","1","2","3","4","5"];
+    const FREE_STEPS = ["0-1","0-2","0-3","1","2","3"];
     if (FREE_STEPS.includes(stepId)) return true;
     return window.SteplingoPro;
 };
