@@ -54,7 +54,8 @@
 
       // アプリ TOP（/cn/）へ自動リダイレクト
       // 少しだけ待ってから戻したい場合は setTimeout を使ってもOK
-      window.location.replace("/cn/");
+      window.location.href = "/cn/#home";
+
       // ※ history を汚したくないので location.replace を使用
     })();
   </script>
