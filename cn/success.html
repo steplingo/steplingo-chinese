@@ -46,6 +46,9 @@
         // ✅ 中国語アプリ用の PRO フラグを保存
         localStorage.setItem("steplingo_pro_chinese", "true");
 
+        // ✅ 旧システム用（index.html の applyLocks が見るフラグ）
+      localStorage.setItem("premium", "1");  
+
         // デバッグ用ログ（本番でもあってOK）
         console.log("[Steplingo] Purchase success! steplingo_pro_chinese = true");
       } catch (e) {
