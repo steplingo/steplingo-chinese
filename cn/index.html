@@ -5310,111 +5310,7 @@ renderAll();
 ]
 }
     </script>
-   <script>
-/** ====== 料金/ペイウォール最小実装（貼るだけ） ====== **/
-
-// 3-1) 無料ステップID（例：発音0-1〜0-3, 構文1〜5）
-window.freeSteps = Array.isArray(window.freeSteps) ? window.freeSteps : ['0','1','2','3','4','5'];
-const freeSteps  = window.freeSteps;
-
-
-// 3-2) 簡易プレミアム判定（本番は認証＋サーバフラグ）
-function userHasPremium(){
-  const q = new URL(location.href).searchParams;
-  if (q.has('premium')) {
-    const v = q.get('premium') === '1' ? '1' : '0';
-    localStorage.setItem('premium','1'===v?'1':'0');
-    history.replaceState({},'', location.pathname + location.hash); // URLを元に戻す
-  }
-  return localStorage.getItem('premium') === '1';
-}
-
-// 3-3）UIロック適用（Step 一覧のカードに .locked を付与）
-function applyLocks(forceReset = false) {
-
-    const list = document.querySelector('#step-list')
-          || document.querySelector('[data-step-list]')
-          || document;
-
-    const cards = list.querySelectorAll('[data-go-step]');
-
-    const norm = v => String(v ?? '').trim();
-
-    // ★ FREE の 6 つだけを使用（クリックされた step は絶対に含めない）
-    const freeSet = new Set((window.freeSteps || []).map(norm));
-
-    cards.forEach(btn => {
-        const stepId = norm(btn.getAttribute('data-go-step'));
-        const isFree = freeSet.has(stepId);
-
-        const isPremium = (typeof userHasPremium === 'function' && userHasPremium());
-
-        const locked = (!isFree && !isPremium);
-        const card = btn.closest('.card') || btn;
-
-        if (locked) {
-            // ロック状態にする
-            card.classList.add('locked');
-
-            // Aタグの href を消して遷移不可にする
-            if (btn.tagName === 'A') {
-                if (!btn.__hrefBackup && btn.hasAttribute('href')) {
-                    btn.__hrefBackup = btn.getAttribute('href');
-                }
-                btn.removeAttribute('href');
-            }
-
-            btn.setAttribute('data-locked', '1');
-        } else {
-            // アンロック
-            card.classList.remove('locked');
-
-            if (btn.tagName === 'A' && btn.__hrefBackup) {
-                btn.setAttribute('href', btn.__hrefBackup);
-            }
-            btn.removeAttribute('data-locked');
-        }
-    });
-}
-
-window.__applyLocks__ = applyLocks;
-
-// 3-4) 課金モーダル表示/非表示
-function openPaywall(){
-  const bp = document.getElementById('paywallBackdrop'); if(!bp) return;
-  bp.hidden = false; bp.style.display = 'flex';
-  bp.classList.add('open');
-  document.body.classList.add('modal-open');
-  window.__paywallOpen__ = true;
-}
-
-function closePaywall(){
-  const bp = document.getElementById('paywallBackdrop'); if(!bp) return;
-  bp.hidden = true; bp.style.display = 'none';
-  bp.classList.remove('open');
-  document.body.classList.remove('modal-open');
-  window.__paywallOpen__ = false;
-}
-
-// 3–5) クリック制御（キャプチャ段階で先取り）
-
-// 3-6）モーダルの “あとで” と背景クリックで閉じる
-document.addEventListener('click', (ev) => {
-
-    // 「あとで」ボタン
-    const cancelBtn = document.getElementById('payCancel');
-    if (cancelBtn && (ev.target === cancelBtn || cancelBtn.contains(ev.target))) {
-        ev.preventDefault();
-        closePaywall();
-        applyLocks();
-        return;
-    }
-
-});
-
-// 3-7) Step一覧が描画されたあとにロック反映（下の #4 参照）
-window.__applyLocks__ = applyLocks;
-</script>
+ 
     
 <script>
 (function(){
@@ -5722,55 +5618,9 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
 // クリックをキャプチャして [data-go-step] だけを処理
-function onClickCapture(e){
-   // クリック開始要素
-  const start = (e.composedPath && e.composedPath()[0]) || e.target;
-  const el = (start instanceof Element) ? start : (start && start.parentElement);
-  if (!el) return;
-
-  // 音声セレクト/ツールバーは完全に素通し
-  if (el.closest('#voiceSel, [data-voice-sel], #toolbar select, #toolbar button, [aria-label="音声"] select')) {
-    return; // preventDefaultも呼ばない
-  }
-
-// モーダル中は“外側クリックだけ”止める（内側と左下ボタンは通す）
-const bp = document.getElementById('paywallBackdrop');
-
-if (bp && bp.classList.contains('open')) {
-    const path = (e.composedPath && e.composedPath()) || [];
-
-    // クリックされた a 要素の href を取得
-    const link = e.target.closest('a');
-    const href = link ? (link.getAttribute('href') || '') : '';
-
-    // 左下ナビ（Step一覧へ / ホームへ）
-    const allowStepList = href.includes('#steps'); // Step一覧へ
-    const allowHome     = href.includes('#home');  // ホームへ
-
-    // モーダル本体
-    const allowModal  = e.target.closest('.paywall-modal') ||
-                        e.target.closest('.modal-box');
-
-    // 🔸 左下ナビが押されたら：モーダルを閉じて、そのまま遷移させる
-    if (allowStepList || allowHome) {
-        if (typeof closePaywall === 'function') {
-            try { closePaywall(); } catch (_) {}
-        }
-        // preventDefault しない → 通常どおり a の遷移が動く
-        return;
-    }
-
-    // 🔒 モーダル外 ＆ 左下ナビでもモーダル内でもない → クリックをブロック
-    if (!path.includes(bp) && !allowModal) {
-        e.preventDefault();
-        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        e.stopPropagation();
-        return;
-    }
-}
-
-  // 学習カード以外は何もしない
-  const a = el.closest('[data-go-step]');
+function onClickCapture(e) {
+  // Stepカード以外は無視
+  const a = e.target.closest('[data-go-step]');
   if (!a) return;
 
   // 既定動作を止める（他のハンドラより先に）
@@ -5778,32 +5628,34 @@ if (bp && bp.classList.contains('open')) {
   if (e.stopImmediatePropagation) e.stopImmediatePropagation();
   e.stopPropagation();
 
-  // 判定は文字列で完全一致
-  const norm   = v => String(v ?? '').trim();
-  const stepId = norm(a.dataset.goStep);
-  const isFree = Array.isArray(window.freeSteps) &&
-                 window.freeSteps.map(norm).includes(stepId);
+  // stepId を取得
+  const stepId = String(a.dataset.goStep ?? '').trim();
 
-console.log("[DEBUG] stepId =", stepId, "isFree =", isFree);
-  // 課金ロック
-  if (typeof userHasPremium === 'function' && !userHasPremium() && !isFree){
-    try { openPaywall && openPaywall(); } catch(_) {}
-    return;
-  }
-
-  // 入ってよい時だけ遷移（数字にできるときのみ index 遷移）
+  // レッスンセレクトに反映して #lesson へ遷移
   const idx = Number(stepId);
   const sel = document.getElementById('lessonSel');
-  if (Number.isFinite(idx) && sel && idx >= 0 && idx < sel.options.length){
-    try { sel.value = String(idx); sel.dispatchEvent(new Event('change')); } catch(_){}
-    try { location.hash = '#lesson'; } catch(_){}
+
+  if (Number.isFinite(idx) && sel && idx >= 0 && idx < sel.options.length) {
     try {
-      document.body.classList.remove('route-home','route-steps','route-lesson');
+      sel.value = String(idx);
+      sel.dispatchEvent(new Event('change'));
+    } catch (_) {}
+
+    try {
+      location.hash = '#lesson';
+    } catch (_) {}
+
+    try {
+      document.body.classList.remove('route-home', 'route-steps', 'route-lesson');
       document.body.classList.add('route-lesson');
-    } catch(_) {}
-    try { window.renderAll && window.renderAll(); } catch(_) {}
+    } catch (_) {}
+
+    try {
+      window.renderAll && window.renderAll();
+    } catch (_) {}
   }
 }
+
 window.onClickCapture = onClickCapture; // または globalThis.onClickCapture
 
 document.addEventListener('click', onClickCapture, { capture: true });
@@ -5818,7 +5670,6 @@ document.addEventListener('click', (ev) => {
   ev.preventDefault();
   ev.stopImmediatePropagation?.();
   ev.stopPropagation();
-  closePaywall();
 }, { capture: false });
 
   function run(){
@@ -6066,24 +5917,6 @@ body.modal-open #home-screen,
 body.modal-open #step-screen,
 body.modal-open main {
   pointer-events: none;
-}
-
-/* モーダル背景（外側）はクリック無効 → 背面へクリックを通す */
-#paywallBackdrop {
-  pointer-events: none;
-}
-
-/* モーダルの本体ボックスだけはクリック有効 */
-#paywallBackdrop .paywall-modal,
-#paywallBackdrop .modal-box {
-  pointer-events: auto;
-}
-
-/* モーダルを最前面＆全面に */
-#paywallBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
 }
 
 
@@ -6482,25 +6315,7 @@ if ('serviceWorker' in navigator) {
   window.matchMedia('(display-mode: standalone)').addEventListener?.('change', refreshInstallUI);
 })();
 </script>
-<!-- Paywall Modal -->
-<div id="paywallBackdrop" class="paywall-modal-backdrop" hidden>
-  <div class="paywall-modal" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
-    <h3 id="paywallTitle">続きはプレミアムで</h3>
-    <p>Step 1–3（＋発音0-1〜0-3）は無料。以降の全ステップ・復習・記録同期はプレミアムでご利用いただけます。</p>
-    <div class="paywall-actions">
-      <!-- ↓↓↓ Stripe Payment Link / Checkout のURLをあとで差し替え ↓↓↓ -->
-      <a id="buyNowBtn" class="pay-cta alt" href="#">
-  プレミアム版を購入
-</a>
 
-      <!-- ↑↑↑ 差し替えポイント ↑↑↑ -->
-
-    </div>
-    <div class="small-note">
-      支払い後にアプリへ戻ると自動でプレミアムが有効になります（当面はテストフロー。後述の“本番フロー”でサーバ連携に切替）。
-    </div>
-  </div>
-</div>
 <footer style="margin-top: 60px; padding: 20px; background: #f7f7f7; text-align: center; font-size: 0.9em; color: #555; line-height: 1.6;">
   <p>© 2025 Steplingo Languages / All rights reserved.</p>
   <p>
