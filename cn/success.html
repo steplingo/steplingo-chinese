@@ -1,34 +1,56 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Steplingo 購入成功</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>購入ありがとうございます｜Steplingo Chinese</title>
 
-  <h1>購入が完了しました！</h1>
-  <p>自動的にホームへ移動します…</p>
+<style>
+  body{
+    margin:0; padding:0;
+    font-family: system-ui, sans-serif;
+    background:#f7f7f7;
+    display:flex; align-items:center; justify-content:center;
+    height:100vh; text-align:center;
+  }
+  .box{
+    background:white; padding:26px 26px 22px;
+    border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.12);
+    width:min(92vw,420px);
+  }
+  h2{ margin-top:0; color:#333; }
+  p{ color:#555; line-height:1.7; }
+  a{
+    display:inline-block; margin-top:18px;
+    padding:12px 20px; border-radius:999px;
+    background:#2b7cff; color:white;
+    text-decoration:none; font-weight:600;
+  }
+</style>
 
-  <script>
-    // ① PRO フラグ（決済成功）
+<script>
+// --- PRO 有効化（唯一の正解ルート：これだけ） ---
+(function(){
+  try {
     localStorage.setItem("steplingo_pro_chinese", "true");
+  } catch(e){}
 
-    // ② 古い premium を撤去（安全のため残す）
-    localStorage.removeItem("premium");
+  // 念のため「premium」キーを完全削除しておく（古いロジックとの衝突回避）
+  try { localStorage.removeItem("premium"); } catch(e){}
+})();
+</script>
 
-    // ③ ホームへ戻す
-    setTimeout(() => {
-      window.location.href = "/cn/";
-    }, 200); // 少しだけ待つ方が安定
-  </script>
+</head>
 
+<body>
+  <div class="box">
+    <h2>購入ありがとうございます！</h2>
+    <p>
+      プレミアム機能（Step4〜33）が解放されました。<br>
+      このまま学習を続けてください。
+    </p>
+
+    <a href="/cn/#steps">→ Step一覧へ戻る</a>
+  </div>
 </body>
 </html>
