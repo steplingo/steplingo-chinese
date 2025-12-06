@@ -32,6 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // FREE ステップ
   const FREE_STEPS = ["0", "1", "2", "3", "4", "5"];
+  
+  document.querySelectorAll(".step-btn a").forEach(a=>{
+  a.addEventListener("click", e=> e.preventDefault());
+});
+
 
   // === div.step-btn クリックで判定 ===
   document.querySelectorAll(".step-btn[data-go-step]").forEach(card => {
