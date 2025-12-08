@@ -1,25 +1,28 @@
 // ===== PRO フラグキー =====
 const PRO_KEY = "steplingo_pro_chinese";
 
+
 // ===== Stripe 決済URL =====
 const STRIPE_URL_TEST = "https://buy.stripe.com/test_9B6dR83007ep8eG3R6bQY01";
 const STRIPE_URL_PROD = "https://buy.stripe.com/7sYaEW1VJfgA6lF9bPcZa00";  // 本番
-const USE_TEST_STRIPE = true; // ← テスト中は true
+
+// ★開発者用スイッチ
+const USE_TEST_STRIPE = true;  // ← テスト中は true
 // const USE_TEST_STRIPE = false; // 本番にする時
 
 const STRIPE_URL = USE_TEST_STRIPE ? STRIPE_URL_TEST : STRIPE_URL_PROD;
 
 
-// ===== PRO 判定 =====
+// ====== PRO 判定 ======
 function isProUser() {
   return localStorage.getItem(PRO_KEY) === "true";
 }
 
 
-// ===== DOM 読み込み =====
+// ====== DOM 読み込み ======
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Stripe success
+  // === Stripe 購入後（success.html→戻って来た時） ===
   const params = new URLSearchParams(window.location.search);
   if (params.get("pro") === "1") {
     localStorage.setItem(PRO_KEY, "true");
@@ -30,37 +33,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const pro = isProUser();
   console.log("[Steplingo] PRO:", pro);
 
-  // FREE ステップ
-  const FREE_STEPS = ["0", "1", "2", "3", "4", "5"];
-  
-  document.querySelectorAll(".step-btn a").forEach(a=>{
-  a.addEventListener("click", e=> e.preventDefault());
-});
+  // === ロック処理（PRO ではない場合のみ） ===
+  document.querySelectorAll("[data-pro]").forEach(btn => {
+    const requirePro = btn.getAttribute("data-pro") === "true";
 
+    if (!requirePro) return; // 無料ステップ
 
-  // === div.step-btn クリックで判定 ===
-  document.querySelectorAll(".step-btn[data-go-step]").forEach(card => {
-    const stepId = card.getAttribute("data-go-step");
-    const isFree = FREE_STEPS.includes(stepId);
-
-    if (!isFree && !pro) {
-      // ロック見た目
-      card.classList.add("locked");
-
-      // card 全体をクリック禁止→Stripeへ
-      card.addEventListener("click", (e) => {
-        e.preventDefault();
+    if (!pro) {
+      btn.classList.add("locked");
+      btn.addEventListener("click", (event) => {
+        event.preventDefault();
         window.location.href = STRIPE_URL;
       });
     }
   });
+
+
+  // === Paywall モーダル（purchase ボタン） ===
+  const buyNowBtn = document.getElementById("buyNowBtn");
+  if (buyNowBtn) {
+    buyNowBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.location.href = STRIPE_URL;
+    });
+  }
 });
 
 
-// ===== 全体 API =====
+// ====== 全体で使う PRO API ======
 window.SteplingoPro = isProUser();
 
+
+// ====== ステップ解放チェック関数 ======
 window.isStepUnlocked = function(stepId) {
-  const FREE_STEPS = ["0", "1", "2", "3", "4", "5"];
-  return FREE_STEPS.includes(String(stepId)) || window.SteplingoPro;
+  const FREE_STEPS = ["0-1", "0-2", "0-3", "1", "2", "3"];
+  if (FREE_STEPS.includes(stepId)) return true;
+  return window.SteplingoPro;
 };
