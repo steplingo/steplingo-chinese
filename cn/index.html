@@ -858,14 +858,13 @@ a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
                 </div>
               </div>
             </div>
-            <!-- 発音ガイドPDF（Step0-1〜0-3のみ表示） -->
-<div class="pdf-guide" id="pdfGuideWrap" style="margin-top:12px; text-align:center;">
-  <a id="pdfGuideLink" class="pdf-btn"
-     href="/docs/pdf/pronunciation-step0-1.pdf"
-     target="_blank" rel="noopener">
-    📄 発音ガイドPDF
+            <!-- AI活用ガイドPDF（全Step共通） -->
+<div class="pdf-guide" id="aiPdfGuide" hidden style="margin-top:12px; text-align:center;">
+  <a id="aiPdfLink" class="pdf-btn" href="#" target="_blank" rel="noopener">
+    📄 AI活用ガイドPDF
   </a>
 </div>
+
 
           </section>
         </div>
@@ -5450,36 +5449,33 @@ document.addEventListener('click', (ev) => {
 // 3-7) Step一覧が描画されたあとにロック反映（下の #4 参照）
 window.__applyLocks__ = applyLocks;
 
-  // 発音ガイドPDFを Step に応じて切り替える
-  function updatePronunciationPdf() {
-    const sel = document.getElementById("lessonSel");
-    const link = document.getElementById("pdfGuideLink");
-    if (!sel || !link) return;
+  // ガイドPDFを Step に応じて切り替える
+  (function(){
+  const sel = document.getElementById("lessonSel");
+  const wrap = document.getElementById("aiPdfGuide");
+  const link = document.getElementById("aiPdfLink");
+  if(!sel || !wrap || !link) return;
 
-    const step = Number(sel.value);
-
-    let pdf = null;
-    if (step === 0) pdf = "/docs/pdf/pronunciation-step0-1.pdf";
-    if (step === 1) pdf = "/docs/pdf/pronunciation-step0-2.pdf";
-    if (step === 2) pdf = "/docs/pdf/pronunciation-step0-3.pdf";
-
-    if (pdf) {
-      link.href = pdf;
-      link.style.display = "";
-    } else {
-      // 発音Step以外では非表示
-      link.style.display = "none";
-    }
+  function getStepLabel(optText){
+    const m = optText.match(/Step\d+(?:-\d+)?/);
+    return m ? m[0] : null;
   }
 
-  // 初期表示時
-  document.addEventListener("DOMContentLoaded", updatePronunciationPdf);
+  function updatePdf(){
+    const opt = sel.options[sel.selectedIndex];
+    const step = getStepLabel(opt?.textContent || "");
+    if(!step){
+      wrap.hidden = true;
+      return;
+    }
+    link.href = `/docs/pdf/prompts-${step}.pdf`;
+    wrap.hidden = false;
+  }
 
-  // レッスン切替時
-  document.getElementById("lessonSel")?.addEventListener(
-    "change",
-    updatePronunciationPdf
-  );
+  updatePdf();
+  sel.addEventListener("change", updatePdf);
+  window.addEventListener("hashchange", updatePdf);
+})();
 
 </script>
     
