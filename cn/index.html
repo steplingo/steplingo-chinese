@@ -5468,7 +5468,8 @@ window.__applyLocks__ = applyLocks;
       wrap.hidden = true;
       return;
     }
-    link.href = `/docs/pdf/prompts-${step}.pdf`;
+   link.href = `/docs/pdf/prompts-${step.toLowerCase()}.pdf`;
+
     wrap.hidden = false;
   }
 
