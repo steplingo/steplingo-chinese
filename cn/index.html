@@ -858,13 +858,25 @@ a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
                 </div>
               </div>
             </div>
-            <!-- AI活用ガイドPDF（全Step共通） -->
+ <!-- AI活用ガイドPDF（全Step共通） -->
 <div class="pdf-guide" id="aiPdfGuide" hidden style="margin-top:12px; text-align:center;">
   <a id="aiPdfLink" class="pdf-btn" href="#" target="_blank" rel="noopener">
-    📄 AI活用ガイド・補助資料PDF
+    📘 AI活用ガイド・補助資料PDF
   </a>
-</div>
 
+  <!-- ★追加：プロンプト表示・コピー（全Step共通） -->
+  <details id="aiPromptBox" class="promptBox" style="display:inline-block; margin-left:8px;">
+    <summary class="pdf-btn">📋 プロンプトを表示・コピー</summary>
+
+    <div style="margin-top:10px; text-align:left; max-width:900px; margin-left:auto; margin-right:auto;">
+      <button id="aiPromptCopyBtn" class="pdf-btn" type="button">コピー</button>
+      <pre id="aiPromptText"
+           style="white-space:pre-wrap; user-select:text; margin-top:8px; padding:10px; border:1px solid #ccc; border-radius:8px;">
+読み込み中...
+      </pre>
+    </div>
+  </details>
+</div>
 
           </section>
         </div>
@@ -5449,11 +5461,17 @@ document.addEventListener('click', (ev) => {
 // 3-7) Step一覧が描画されたあとにロック反映（下の #4 参照）
 window.__applyLocks__ = applyLocks;
 
-  // ガイドPDFを Step に応じて切り替える
-  (function(){
-  const sel = document.getElementById("lessonSel");
+// ガイドPDFを Step に応じて切り替える
+(function(){
+  const sel  = document.getElementById("lessonSel");
   const wrap = document.getElementById("aiPdfGuide");
   const link = document.getElementById("aiPdfLink");
+
+  // ★追加：Prompt UI
+  const promptBox = document.getElementById("aiPromptBox");
+  const promptText = document.getElementById("aiPromptText");
+  const copyBtn = document.getElementById("aiPromptCopyBtn");
+
   if(!sel || !wrap || !link) return;
 
   function getStepLabel(optText){
@@ -5461,22 +5479,93 @@ window.__applyLocks__ = applyLocks;
     return m ? m[0] : null;
   }
 
+  // ★追加：TXT読み込み（必要になった時だけ fetch するためのキャッシュ）
+  let currentPromptUrl = "";
+  async function loadPrompt(url){
+    if(!promptText) return;
+    if(url === currentPromptUrl && promptText.textContent && promptText.textContent !== "読み込み中...") return;
+
+    currentPromptUrl = url;
+    promptText.textContent = "読み込み中...";
+
+    try{
+      const res = await fetch(url, { cache: "force-cache" });
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      const txt = await res.text();
+      promptText.textContent = txt.trim() || "(空です)";
+    }catch(e){
+      promptText.textContent = "読み込みに失敗しました。\n" + url;
+    }
+  }
+
   function updatePdf(){
-    const opt = sel.options[sel.selectedIndex];
+    const opt  = sel.options[sel.selectedIndex];
     const step = getStepLabel(opt?.textContent || "");
     if(!step){
       wrap.hidden = true;
       return;
     }
-   link.href = `/docs/pdf/prompts-${step.toLowerCase()}.pdf`;
+
+    // PDF
+    link.href = `/docs/pdf/prompts-${step.toLowerCase()}.pdf`;
+
+    // ★追加：TXT（プロンプト）
+    const promptUrl = `/docs/txt/prompts-${step.toLowerCase()}.txt`;
+
+    // details を閉じた状態では読まない（＝負荷最小）
+    if(promptBox){
+      promptBox.dataset.url = promptUrl;
+      // Step切替時は表示内容を一旦クリア（前Stepの残留防止）
+      if(promptText) promptText.textContent = "読み込み中...";
+      // 開いているなら即読み込み
+      if(promptBox.open) loadPrompt(promptUrl);
+    }
 
     wrap.hidden = false;
+  }
+
+  // ★追加：details を開いた瞬間に読む（遅延ロード）
+  if(promptBox){
+    promptBox.addEventListener("toggle", () => {
+      if(promptBox.open){
+        const url = promptBox.dataset.url;
+        if(url) loadPrompt(url);
+      }
+    });
+  }
+
+  // ★追加：コピー
+  if(copyBtn){
+    copyBtn.addEventListener("click", async () => {
+      const text = promptText ? promptText.textContent : "";
+      if(!text || text === "読み込み中...") return;
+
+      // Clipboard API（iOS/Android/PC。https配信が前提）
+      if(navigator.clipboard?.writeText){
+        try{
+          await navigator.clipboard.writeText(text);
+          // 表示は最小（不要ならこの2行消してOK）
+          copyBtn.textContent = "コピーしました";
+          setTimeout(()=> copyBtn.textContent = "コピー", 900);
+          return;
+        }catch(e){}
+      }
+
+      // フォールバック（古い環境）
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    });
   }
 
   updatePdf();
   sel.addEventListener("change", updatePdf);
   window.addEventListener("hashchange", updatePdf);
 })();
+  
 
 </script>
     
