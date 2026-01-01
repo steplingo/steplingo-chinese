@@ -7,7 +7,7 @@ const STRIPE_URL_TEST = "https://buy.stripe.com/test_9B6dR83007ep8eG3R6bQY01";
 const STRIPE_URL_PROD = "https://buy.stripe.com/7sYaEW1VJfgA6lF9bPcZa00";  // 本番
 
 // ★開発者用スイッチ
-const USE_TEST_STRIPE = true;  // ← テスト中は true
+const USE_TEST_STRIPE = false; // ← テスト中は true
 // const USE_TEST_STRIPE = false; // 本番にする時
 
 const STRIPE_URL = USE_TEST_STRIPE ? STRIPE_URL_TEST : STRIPE_URL_PROD;
