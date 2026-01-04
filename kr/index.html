@@ -919,203 +919,160 @@ a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
         beep(ngCtx, 300, 0.12);
       }
 
-      /* ==========================================================
-   Steplingo™ Chinese : 自動最良音声ピッカー（調整安定版）
-   対応：macOS/iOS (Ting-Ting優先) ＋ Windows/Android (Xiaoxiao優先)
-   方針：
-   - Apple系: Ting-Ting > Lilian > Lili > Shasha > Tian-Tian > Yun > Yu-shu > Binbin > Han
-   - Microsoft系: Xiaoxiao > Xiaochen > Xiaoyu > Xiaohan > Xiaomeng > Xiaomo > Xiaorou > Xiaoqie > Xiaoyan > Yunyang > Yunxi > Yunye
-   - まず zh-CN を最優先（次いで zh 系も許容）
-   - 機械音（Eddy/Wavenet/粵語など）は除外
-   - セレクタがあれば反映（id="voiceSel" または id="voicePickerZh"）
-   ========================================================== */
+<!-- ===== Steplingo Korean : 自動最良音声ピッカー（Ko版）===== -->
 
-(function(){
-  const KEY = 'ttsVoice.zhCN';
-  const CN = 'zh-CN';
+(async function () {
+  const KEY = 'ttsVoice.koKR';
+  const LANG = 'ko-KR';
 
-  // 除外（機械音・Eddy/Wavenet・広東語など）
-  const NG = /(google|wavenet|eddy|canton|guangdong)/i;
-
-  // 名前優先テーブル
-  const APPLE_ORDER = [
-    /ting[\-\s]?ting/i, /lilian/i, /lili\b/i, /shasha/i, /tian[\-\s]?tian/i,
-    /yun\b/i, /yu[\-\s]?shu/i, /binbin/i, /bhan\b/i
-  ];
-  const MS_ORDER = [
-    /xiaoxiao/i, /xiaochen/i, /xiaoyu/i, /xiaohan/i, /xiaomeng/i, /xiaomo/i,
-    /xiaorou/i, /xiaoqie/i, /xiaoyan/i, /yunyang/i, /yunxi/i, /yunye/i
-  ];
-
-  // ---- voices を確実に取得（iOS Safari 遅延対策）----
-  function getVoicesAsync(){
-    return new Promise(resolve=>{
-      const tryGet = ()=>{
+  // 端末によっては voices が遅れて入るので複数回トライ
+  function getVoicesAsync() {
+    return new Promise((resolve) => {
+      const tryGet = () => {
         const v = speechSynthesis.getVoices() || [];
-        if (v.length) { speechSynthesis.removeEventListener?.('voiceschanged', tryGet); resolve(v); }
+        if (v.length) {
+          speechSynthesis.removeEventListener?.('voiceschanged', tryGet);
+          resolve(v);
+          return;
+        }
       };
       speechSynthesis.addEventListener?.('voiceschanged', tryGet);
-      // 3回くらい念押し
+      tryGet();
       setTimeout(tryGet, 0);
-      setTimeout(tryGet, 200);
-      setTimeout(tryGet, 800);
+      setTimeout(tryGet, 300);
+      setTimeout(tryGet, 900);
+      setTimeout(() => resolve(speechSynthesis.getVoices() || []), 1600);
     });
   }
 
-  // ---- 判定系 ----
-  const isZh = v => {
-    const s = `${v.lang||''} ${v.name||''} ${v.voiceURI||''}`;
-    return /\b(zh|cmn|chinese)(-CN)?\b/i.test(s);
-  };
-  const isCn = v => /zh\-CN/i.test(v.lang||'') || /Mainland|China/i.test(`${v.name||''} ${v.voiceURI||''}`);
-
-  // ---- スコアリング：小さいほど上位 ----
-  function scoreVoice(v){
-    let score = 10000;
-    const name = (v.name||'').toLowerCase();
-    const uri  = (v.voiceURI||'').toLowerCase();
-    const ua   = navigator.userAgent.toLowerCase();
-
-    // 非中国語 → 退場
-    if (!isZh(v)) return score + 5000;
-    // 機械音など除外気味
-    if (NG.test(name) || NG.test(uri)) return score + 4000;
-
-    // ベース
-    score = 2000;
-    // zh-CN 最優先
-    if (!isCn(v)) score += 400;
-
-    // OS 系での名前優先
-    const isApple = /apple|safari|iphone|ipad|mac/.test(ua) || /com\.apple\./i.test(uri);
-    const isMS    = /microsoft|onecore|edge|edg/.test(ua)   || /microsoft/i.test(uri);
-    // Android微調整：端末で使えるzh-CNの自然系を少しだけ優遇
-const isAndroid = /Android/i.test(navigator.userAgent);
-if (isAndroid) {
-  const s = ((v.name||'') + ' ' + (v.voiceURI||''));
-  if (/Google|Samsung/i.test(s)) score -= 30;   // 端末ネイティブ系を優遇
-  if (/zh\-CN/i.test(v.lang||'')) score -= 20;  // 大陸標準語に加点
-}
-
-    const applyOrder = (order, base)=>{
-      const idx = order.findIndex(rx => rx.test(name));
-      if (idx >= 0) score = base + idx;  // 0が最上位
-    };
-    if (isApple) applyOrder(APPLE_ORDER, 0);
-    if (isMS)    applyOrder(MS_ORDER,  0);
-
-    // 中間層（Chromium等）は両方の候補にヒットすればそこそこ
-    if (!isApple && !isMS){
-      const iA = APPLE_ORDER.findIndex(rx => rx.test(name));
-      const iM = MS_ORDER.findIndex(rx => rx.test(name));
-      if (iA >= 0) score = Math.min(score, 100 + iA);
-      if (iM >= 0) score = Math.min(score, 100 + iM);
-    }
-
-    // “natural / premium / compact” など自然音寄りの名称は微加点
-    if (/compact|premium|natural/i.test(uri+name)) score -= 10;
-
-    return score;
+  // ko候補だけ残す
+  function isKo(v) {
+    const lg = (v.lang || '').toLowerCase();
+    return lg.startsWith('ko');
   }
 
-  // ---- 候補から最良を決定 ----
-  function pickBestZhVoice(list){
-    const zh = (list||[]).filter(isZh).filter(v => !(NG.test(v.name||'') || NG.test(v.voiceURI||'')));
-    if (!zh.length) return null;
+  // ざっくり優先：ローカル > 名前ヒント（Yuna/Heami等） > その他
+  function score(v) {
+    const name = (v.name || '').toLowerCase();
+    const uri  = (v.voiceURI || '').toLowerCase();
+    const local = !v.localService ? 0 : 1; // trueの時が多いが実装差があるので点数化だけ
 
-    zh.sort((a,b)=> scoreVoice(a) - scoreVoice(b));
+    let s = 0;
+    if (isKo(v)) s += 1000;
 
-    // Ting-Ting が存在すれば必ず先頭に
-    const tIdx = zh.findIndex(v => /ting[\-\s]?ting/i.test(v.name||''));
-    if (tIdx > 0) zh.unshift(zh.splice(tIdx,1)[0]);
+    // “natural/premium” っぽい語は少し加点（あれば）
+    if (/(natural|premium)/.test(name + uri)) s += 20;
 
-    return zh[0] || null;
+    // 端末搭載系でよく出る名前を上に
+    if (/(yuna)/.test(name)) s += 60;
+    if (/(heami)/.test(name)) s += 55;
+    if (/(sunhi|suna|suni)/.test(name)) s += 40;
+    if (/(yuri)/.test(name)) s += 35;
+
+    // “Google/Wavenet”等は環境差が大きいので控えめに（好みで調整可）
+    if (/(google|wavenet)/.test(name + uri)) s -= 15;
+
+    // ローカル寄りを少し優先（localService の実装差があるので控えめ）
+    s += local ? 10 : 0;
+
+    return s;
   }
 
-  // ---- セレクタ（あれば）に反映 & 保存 ----
-  async function buildPicker(){
-    const selTop   = document.getElementById('voiceSel') || document.querySelector('#toolbar select[id*="voice"]') || document.querySelector('select[aria-label*="音声"]');
-    const selSide  = document.getElementById('voicePickerZh');
-    const sel      = selSide || selTop;
+  function pickBestKoVoice(voices) {
+    const list = (voices || []).filter(isKo);
+    if (!list.length) return null;
+    list.sort((a, b) => score(b) - score(a));
+    return list[0] || null;
+  }
+
+  // セレクタ探索（voicePickerKo を最優先）
+  function findVoiceSelect() {
+    return (
+      document.getElementById('voicePickerKo') ||
+      document.getElementById('voiceSel') ||
+      document.querySelector('#toolbar select[id*="voice"]') ||
+      document.querySelector('select[aria-label*="音声"]') ||
+      null
+    );
+  }
+
+  async function buildKoPicker() {
+    const sel = findVoiceSelect();
     if (!sel) return;
 
-    const list = await getVoicesAsync();
-    const cand = (list||[]).filter(isZh).filter(v => !(NG.test(v.name||'') || NG.test(v.voiceURI||'')));
+    const voices = await getVoicesAsync();
+    const kos = voices.filter(isKo);
 
-    // 表示
     sel.innerHTML = '';
-    for (const v of cand.sort((a,b)=> scoreVoice(a) - scoreVoice(b))){
-      const o = document.createElement('option');
-      o.value = v.voiceURI || `name:${v.name}`;
-      o.textContent = `${v.name} (${v.lang})`;
-      sel.appendChild(o);
+    if (!kos.length) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '（この端末に韓国語音声がありません）';
+      sel.appendChild(opt);
+      return;
     }
 
-    // 保存値あれば復元
-    try{
-      const saved = localStorage.getItem(KEY)||'';
-      if (saved && [...sel.options].some(o=>o.value===saved)) sel.value = saved;
-    }catch{}
+    kos.sort((a, b) => score(b) - score(a));
+    for (const v of kos) {
+      const opt = document.createElement('option');
+      opt.value = v.voiceURI || ('name:' + v.name);
+      opt.textContent = `${v.name} (${v.lang}${v.localService ? '' : ', remote'})`;
+      sel.appendChild(opt);
+    }
 
-    // 変更で保存
-    sel.addEventListener('change', ()=>{
-      try{ localStorage.setItem(KEY, sel.value); }catch{}
+    // 保存値があれば復元
+    try {
+      const saved = localStorage.getItem(KEY) || '';
+      if (saved && [...sel.options].some(o => o.value === saved)) sel.value = saved;
+    } catch {}
+
+    // 変更を保存
+    sel.addEventListener('change', () => {
+      try { localStorage.setItem(KEY, sel.value); } catch {}
     });
   }
 
-  // ---- 現在の選択（保存＞自動）を取得 ----
-  async function getSavedZhVoice(){
+  async function getSavedKoVoice() {
     const voices = await getVoicesAsync();
-    // 1) 保存値を優先
-    try{
-      const saved = localStorage.getItem(KEY)||'';
-      if (saved){
-        const v = voices.find(x => (x.voiceURI||`name:${x.name}`) === saved);
-        if (v) return v;
+    const best = pickBestKoVoice(voices);
+    try {
+      const saved = localStorage.getItem(KEY) || '';
+      if (saved) {
+        const hit = voices.find(v => (v.voiceURI || ('name:' + v.name)) === saved);
+        if (hit) return hit;
       }
-    }catch{}
-    // 2) 自動
-    return pickBestZhVoice(voices) || null;
+    } catch {}
+    return best;
   }
 
-  // ---- 実際の読み上げ ----
-  async function speakZh(text, opts={}){
-    const v = await getSavedZhVoice();
-    const u = new SpeechSynthesisUtterance(text||'');
-    u.lang   = (v && v.lang) || CN;
+  async function speakKo(text, opts = {}) {
+    const v = await getSavedKoVoice();
+    const u = new SpeechSynthesisUtterance(String(text || ''));
+    u.lang = (v && v.lang) || LANG;
     if (v) u.voice = v;
-    u.rate   = opts.rate   ?? 0.70;
-    u.pitch  = opts.pitch  ?? 1.05;
+    u.rate = opts.rate ?? 0.95;
+    u.pitch = opts.pitch ?? 1.0;
     u.volume = opts.volume ?? 1.0;
-    try{ speechSynthesis.cancel(); }catch{}
+
+    try { speechSynthesis.cancel(); } catch {}
     speechSynthesis.speak(u);
   }
 
-  // 公開（既存呼び出し互換）
+  // 公開API
   window.steplingoTTS = window.steplingoTTS || {};
-  window.steplingoTTS.speakZh   = speakZh;
-  window.steplingoTTS.initZhTTS = async ()=>{ try{ await buildPicker(); }catch{} };
+  window.steplingoTTS.speakKo = speakKo;
+  window.steplingoTTS.initKoTTS = async () => { try { await buildKoPicker(); } catch {} };
 
-  // 自動初期化
-  (async ()=>{ try{ await buildPicker(); }catch{} })();
-  // Safari/iOS: 初回操作後に音声リストを再初期化
-window.addEventListener('click', () => { 
-  try { window.steplingoTTS.initZhTTS(); } catch(e){} 
-}, { once:true });
-// ページ全体のクリックを復帰（初期化競合でpointerEventsが無効化されることがある）
-setTimeout(() => {
-  document.body.style.pointerEvents = 'auto';
-}, 1500);
-setTimeout(() => {
-  try {
-    console.log("✅ 再初期化: buildPicker() 再実行");
-    buildPicker();
-  } catch (e) { console.warn("⚠️ buildPicker再実行失敗:", e); }
-}, 2000);
+  // 初期化（Safari/iOS対策：初回クリックでも再初期化）
+  try { await buildKoPicker(); } catch {}
+  window.addEventListener('click', () => {
+    try { window.steplingoTTS.initKoTTS(); } catch {}
+  }, { once: true });
+
+  // 互換ショートカット（必要なら）
+  window.speakKo = (text) => window.steplingoTTS?.speakKo?.(text);
 
 })();
-window.speakZh = (text) => window.steplingoTTS?.speakZh?.(text);
-
 
       /* ===== データ読み込み・進捗・描画（既存ロジックのまま） ===== */
       console.log("✅ JSONロード開始済み。voicePicker遅延初期化OK。");
@@ -5988,225 +5945,6 @@ document.addEventListener('click', (ev) => {
   window.addEventListener('hashchange', ()=>setTimeout(run, 30));
   // クリック横取り
   })();
-// === zh-CN(Ting-Ting系) 優先の音声ピッカー & 再生（衝突しない安全版） ===
-(async function(){
-  const KEY   = 'ttsVoice.zhCN';
-  const LANG  = 'zh-CN';
-  const HINTS = ['ting-ting','ting ting','tingting','普通话','mainland','simplified','google','microsoft','apple'];
-
-  function getVoicesAsync(){
-    return new Promise(resolve=>{
-      const tryGet = () => {
-        const v = speechSynthesis.getVoices();
-        if (v && v.length) { speechSynthesis.removeEventListener('voiceschanged', tryGet); resolve(v); }
-      };
-      speechSynthesis.addEventListener('voiceschanged', tryGet);
-      setTimeout(tryGet, 0);
-      setTimeout(tryGet, 500);
-      setTimeout(tryGet, 1500);
-    });
-  }
-  function score(v){
-    const nm = (v.name||v.voiceURI||'').toLowerCase();
-    const lg = (v.lang||'').toLowerCase();
-    let s = 0;
-    if (lg.startsWith(LANG.toLowerCase())) s += 100;     // zh-CN 最優先
-    else if (lg.startsWith('zh')) s += 50;               // 次：zh 系
-    for (const h of HINTS) if (nm.includes(h)) s += 5;
-    return s;
-  }
-  function cand(voices){
-  const isZh = v => (v.lang||'').toLowerCase().startsWith('zh');
-  const isCn = v => /^zh(-cn)?/i.test(v.lang||'');
-  const isTw = v => /^zh(-tw)?/i.test(v.lang||'');
-
-  // ❶ 除外パターン（機械音・広東語・Eddy など）
-  const NG = /(google|wavenet|粤|guangdong|canton|eddy)/i;
-
-  // ❷ “ローカルTTS” を強く優先（端末に入っている自然音声）
-  const isLocal = v => !!v.localService;
-
-  // ❸ “名前で優先”（見つかったらこの順で先頭へ）
-  //    mac/iOS: Ting-Ting, Han / 台湾: Meijia, Shelley
-  //    Android系メーカーのローカルTTS候補（端末にあれば拾う）
-  const PREFERRED = [
-    // Mainland CN
-    'Ting-Ting','Han','Xiaoxiao','Yunxi','Li-mu','Limei',
-    // Taiwan
-    'Meijia','Shelley'
-  ].map(s => s.toLowerCase());
-
-  const allow = v => isZh(v) && !NG.test(v.name||'') && (isCn(v) || isTw(v));
-
-  // ❹ 候補抽出
-  let list = [...voices].filter(allow);
-
-  // ❺ 並び順スコア
-  const score = (v) => {
-    const name = (v.name||'').toLowerCase();
-    const idx = PREFERRED.indexOf(name);
-    // 大陸 > 台湾、ローカル > リモート、定義順位、言語優先の多段スコア
-    return (
-      (isCn(v) ? 1000 : 0) +                 // 大陸を+1000
-      (isLocal(v) ? 100 : 0) +               // ローカルを+100
-      ((idx >= 0) ? (50 - idx) : 0) +        // PREFERRED 順
-      (isTw(v) ? 10 : 0)                     // 台湾は+10（大陸不在時の救済）
-    );
-  };
-
-  // ❻ スコア順（降順）
-  list.sort((a,b) => score(b) - score(a));
-
-  // ❼ Ting-Ting を常に先頭に（存在する場合）
-  const ttIdx = list.findIndex(v => /^ting-?ting$/i.test(v.name||''));
-  if (ttIdx > 0) { const [tt] = list.splice(ttIdx,1); list.unshift(tt); }
-
-  // 端末に自然音声が皆無（Android/Chrome でありがち）の場合は、
-  // それでも空にしないよう、最後に“唯一の zh-CN/TW ロボ” を1つだけ残す救済：
-  if (!list.length){
-    const fallback = [...voices].find(v => isZh(v) && (isCn(v) || isTw(v)));
-    if (fallback) list = [fallback];
-  }
-  return list;
-}
-
-  async function buildZhPicker(){
-    // 既存（上バー）のセレクトを優先的に使う
-function findTopBarVoiceSelect(){
-  const byHint = document.getElementById('voiceSel')
-    || document.getElementById('voiceSelect')
-    || document.getElementById('voiceSelectZh')
-    || document.querySelector('#toolbar select[id*="voice"]')
-    || document.querySelector('[data-voice-sel]');
-  if (byHint) return byHint;
-
-  const sels = [...document.querySelectorAll('select')].filter(s => s.id !== 'lessonSel');
-  const score = s => {
-    const t = (s.textContent||'').toLowerCase();
-    return (/(ting|普通|zh-cn|中文|mandarin)/.test(t)?10:0) + s.options.length;
-  };
-  return sels.sort((a,b)=>score(b)-score(a))[0] || null;
-}
-
-const selTop  = findTopBarVoiceSelect();
-const selSide = document.getElementById('voicePickerZh');
-const sel = selSide || selTop;
-sel.disabled = false;
-sel.removeAttribute('disabled');
-sel.style.pointerEvents = '';
-
-    if (!sel) return;
-    const voices = await getVoicesAsync();
-    const list   = cand(voices);
-
-    sel.innerHTML = '';
-
-    if (!list.length){
-      const opt = document.createElement('option');
-      opt.value = ''; opt.textContent = '（この端末に中国語音声がありません）';
-      sel.appendChild(opt);  return;
-    }
-    for (const v of list){
-      const opt = document.createElement('option');
-      opt.value = v.voiceURI || ('name:'+v.name);
-      opt.textContent = `${v.name} (${v.lang}${v.localService ? '' : ', remote'})`;
-      sel.appendChild(opt);
-    }
-    // === 上バーに統一 & 旧 voiceSel は隠す ===
-(function(){
-  // 上バーのセレクト（旧）
-  const topSel = document.getElementById('voiceSel')
-            || document.querySelector('#toolbar select[id*="voice"]')
-            || document.querySelector('select[aria-label*="音声"]');
-
-  // 今回の本命（中国語専用）
-  const zhSel  = document.getElementById('voicePickerZh');
-  if (!zhSel) return;
-
-  // ラベルのDOM（<label>..</label> で囲んでいる場合はそれを採用）
-  const topLabel = topSel ? (topSel.closest('label')||topSel) : null;
-  const zhLabel  = zhSel.closest('label') || zhSel;
-
-  // 上バー側の直前に差し込み（見た目の位置は維持）
-  if (topLabel && zhLabel && topLabel !== zhLabel){
-    topLabel.parentNode.insertBefore(zhLabel, topLabel);
-  }
-
-  // 旧の上バー voiceSel は非表示（干渉を避ける）
-  if (topLabel && topSel){
-    topLabel.style.display = 'none';
-  }
-
-  // ラベル文字を「音声：」に
-  // 例：<label>中国語(大陸)の音声: <select ...></select></label>
-  const cap = zhLabel.querySelector('span, .caption, .label') || zhLabel;
-  try{
-    // 「中国語(大陸)の音声：」など既存テキストを上書き
-    if (cap && cap.firstChild && cap.firstChild.nodeType===3){
-      cap.firstChild.nodeValue = '音声： ';
-    }else{
-      zhLabel.prepend(document.createTextNode('音声： '));
-    }
-  }catch(_){}
-
-  // セレクトが無効化されていたら復活
-  zhSel.disabled = false;
-  zhSel.removeAttribute('disabled');
-  zhSel.style.pointerEvents = 'auto';
-})();
-
-    // 上バーに統一できたら、左のセレクトを非表示に
-// === 旧バーのセレクトを隠し、豊富リスト(voicePickerZh)を上バー位置へ移設 ===
-
-
-// 既存の変更ハンドラに通知（任意）
-
-    try {
-      const saved = localStorage.getItem(KEY)||'';
-      if (saved && [...sel.options].some(o=>o.value===saved)) sel.value = saved;
-    } catch {}
-    try { sel.dispatchEvent(new Event('change', { bubbles:true })); } catch {}
-
-    sel.addEventListener('change', ()=> {
-      try{ localStorage.setItem(KEY, sel.value); }catch{}
-    });
-  }
-window.buildZhPicker = buildZhPicker;
-
-  async function getSavedZhVoice(){
-    const voices = await getVoicesAsync();
-    const list   = cand(voices);
-    if (!list.length) return null;
-    try{
-      const saved = localStorage.getItem(KEY)||'';
-      if (saved){
-        const v = voices.find(v => (v.voiceURI||('name:'+v.name))===saved);
-        if (v) return v;
-      }
-    }catch{}
-    return list[0];
-  }
-
-  async function speakZh(text, opts={}){
-    const v = await getSavedZhVoice();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang   = v?.lang || LANG;
-    if (v) u.voice = v;
-    u.rate  = opts.rate  ?? 1.0;
-    u.pitch = opts.pitch ?? 1.0;
-    u.volume= opts.volume?? 1.0;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  }
-
-  // 公開API（既に同名があれば上書きしない）
-  window.steplingoTTS = window.steplingoTTS || {};
-  if (!window.steplingoTTS.speakZh)      window.steplingoTTS.speakZh = speakZh;
-  if (!window.steplingoTTS.initZhPicker) window.steplingoTTS.initZhPicker = buildZhPicker;
-
-  // 自動でセレクターを構築
-  try { await buildZhPicker(); } catch {}
-})();
 
 </script>
 <!-- Kill stray cards outside #step-list -->
