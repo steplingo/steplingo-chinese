@@ -141,12 +141,12 @@
 
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Steplingo™ Chinese</title>
+<title>Steplingo™ Korean</title>
 
     
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>簡明独学中国語｜共通エンジン＋JSON（8レッスン統合）</title>
+    <title>簡明独学韓国語｜共通エンジン＋JSON（8レッスン統合）</title>
     <style>
       :root {
         --ink: #0f172a;
@@ -511,14 +511,14 @@
   margin-left: 2vw;  /* 2vw〜4vwくらいでお好みに調整 */
 }
 
-/* 中国語ホーム画像（左） */
+/* 韓国語ホーム画像（左） */
 #heroLeft {
   background-image: url("../icons/hero-left-cn.png");
   /* 中身をほんの少し右へ寄せる */
   background-position: 55% center;  /* 50% → 52% くらいが「ほんの少し」 */
 }
 
-/* 中国語ホーム画像（右） */
+/* 韓国語ホーム画像（右） */
 #heroRight {
   background-image: url("../icons/hero-right-cn.png");
   background-repeat: no-repeat;
@@ -574,8 +574,8 @@ a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
 <section id="home-screen" class="screen" style="display: block;">
   <div class="home-card">
     <div class="title-wrap">
-      <div class="tagline">Steplingo™ Chinese</div>
-      <h1>簡明独学中国語</h1>
+      <div class="tagline">Steplingo™ Korean</div>
+      <h1>簡明独学韓国語</h1>
       <div class="subtitle">— 目標：中級 / 発音篇・構文篇・表現篇 —</div>
     </div>
     <img class="home-logo" src="../icons/home-logo.png" alt="Steplingo Logo">
@@ -587,9 +587,9 @@ a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
 
 
     <p class="intro">
-      Steplingo™ Chinese「簡明独学中国語」は、発音・構文・表現の<strong>最短ルート</strong>を目指した自主学習用パッケージです。<br>
+      Steplingo™ Korean「簡明独学韓国語」は、発音・構文・表現の<strong>最短ルート</strong>を目指した自主学習用パッケージです。<br>
       <strong>ホーム → Step一覧 → レッスン</strong>のシンプル導線で、Stepを<strong>選んですぐ学習</strong>できます。<br>
-      中国語の全体像がつかめる構成で、Step33まで登れば、中級の実力が身に付くことでしょう。
+      韓国語の全体像がつかめる構成で、Step33まで登れば、中級の実力が身に付くことでしょう。
     </p>
     <div class="cta-row">
         <a href="/cn/#steps" class="btn">学習を始める</a>
@@ -792,7 +792,7 @@ a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
     <div class="app">
       <div class="card">
         <div class="header">
-          <h1>簡明独学中国語</h1>
+          <h1>簡明独学韓国語</h1>
           <div class="controls">
             <button id="prev" class="btn">◀ 前へ</button>
             <button id="next" class="btn">次へ ▶</button>
@@ -1302,7 +1302,7 @@ if ($bar) $bar.style.width = `${ total > 1 ? ((pos - 1) / (total - 1)) * 100 : 1
             refAns.textContent = `参考（正解）：${q.words.join(" ")}`;
             refAns.style.display = "";
             refAns.dataset.shown = "1";
-            refPin.textContent = `拼音：${q.pinyin}`;
+            refPin.textContent = `メモ：${q.メモ}`;
             refPin.style.display = "";
             refPin.dataset.shown = "1";
             const prog = loadProgress(L.id);
@@ -1319,7 +1319,7 @@ if ($bar) $bar.style.width = `${ total > 1 ? ((pos - 1) / (total - 1)) * 100 : 1
             sfxNG();
             refAns.textContent = `参考（正解）：${q.words.join(" ")}`;
             refAns.style.display = "";
-            refPin.textContent = `拼音：${q.pinyin}`;
+            refPin.textContent = `メモ：${q.メモ}`;
             refPin.style.display = "";
           }
         };
@@ -1406,124 +1406,104 @@ renderAll();
 </section><script type="application/json" id="lessons-json">
       {
         "version": "1.2",
-        "voice": { "lang": "zh-CN", "rate": 0.7, "pitch": 1.05 },
+        "voice": {"lang": "ko-KR", "rate": 1.0, "pitch": 1.0 },
         "lessons": [
-          {
-            "id": "np-01-pos",
-            "order": 10,
-            "title": "Step1構文法篇(1)\"是\"構文(準名詞構文)基本形①肯定文",
-            "pattern": {
-              "headers": ["(文型No.1)", "名詞", "是（shì）", "名詞"],
-              "example": ["这（Zhè）", "是（shì）", "桌子（zhuōzi）。"],
-              "jp": "例文：这是桌子。 / これは机です。"
-            },
-            "distractors": [
-              "那",
-              "这里",
-              "那里",
-              "我",
-              "你",
-              "他",
-              "她",
-              "学生",
-              "老师",
-              "医生",
-              "同学",
-              "朋友",
-              "椅子",
-              "电脑",
-              "电视",
-              "苹果",
-              "水",
-              "水果",
-              "汉语书",
-              "衣服",
-              "医院",
-              "学校",
-              "出租车",
-              "书",
-              "杯子",
-              "菜"
-            ],
-            "extraDistractors": 4,
-            "items": [
-              {
-                "title": "問題(中訳)1：これは机です。",
-                "words": ["这", "是", "桌子"],
-                "pinyin": "Zhè shì zhuōzi."
-              },
-              {
-                "title": "問題(中訳)2：私は学生です。",
-                "words": ["我", "是", "学生"],
-                "pinyin": "Wǒ shì xuésheng."
-              },
-              {
-                "title": "問題(中訳)3：彼は先生です。",
-                "words": ["他", "是", "老师"],
-                "pinyin": "Tā shì lǎoshī."
-              },
-              {
-                "title": "問題(中訳)4：彼女は医者です。",
-                "words": ["她", "是", "医生"],
-                "pinyin": "Tā shì yīshēng."
-              },
-              {
-                "title": "問題(中訳)5：私たちは同級生です。",
-                "words": ["我们", "是", "同学"],
-                "pinyin": "Wǒmen shì tóngxué."
-              },
-              {
-                "title": "問題(中訳)6：これは中国語の本です。",
-                "words": ["这", "是", "汉语书"],
-                "pinyin": "Zhè shì hànyǔshū."
-              },
-              {
-                "title": "問題(中訳)7：これはパソコンです。",
-                "words": ["这", "是", "电脑"],
-                "pinyin": "Zhè shì diànnǎo."
-              },
-              {
-                "title": "問題(中訳)8：あれはタクシーです。",
-                "words": ["那", "是", "出租车"],
-                "pinyin": "Nà shì chūzūchē."
-              },
-              {
-                "title": "問題(中訳)9：それはテレビです。",
-                "words": ["那", "是", "电视"],
-                "pinyin": "Nà shì diànshì."
-              },
-              {
-                "title": "問題(中訳)10：これはリンゴです。",
-                "words": ["这", "是", "苹果"],
-                "pinyin": "Zhè shì píngguǒ."
-              },
-              {
-                "title": "問題(中訳)11：それは水です。",
-                "words": ["那", "是", "水"],
-                "pinyin": "Nà shì shuǐ."
-              },
-              {
-                "title": "問題(中訳)12：彼は友だちです。",
-                "words": ["他", "是", "朋友"],
-                "pinyin": "Tā shì péngyou."
-              },
-              {
-                "title": "問題(中訳)13：ここは病院です。",
-                "words": ["这里", "是", "医院"],
-                "pinyin": "Zhèlǐ shì yīyuàn."
-              },
-              {
-                "title": "問題(中訳)14：あそこは学校です。",
-                "words": ["那里", "是", "学校"],
-                "pinyin": "Nàlǐ shì xuéxiào."
-              },
-              {
-                "title": "問題(中訳)15：これはレストランです。",
-                "words": ["这", "是", "饭馆"],
-                "pinyin": "Zhè shì fànguǎn."
-              }
-            ]
-          },
+         {
+  "id": "np-01-pospre",
+  "order": 10,
+  "title": "Step1構文法篇(1)名詞構文基本形①肯定文（現在形）",
+  "pattern": {
+    "headers": [ "(文型No.1)", "名詞", "는(or은)","名詞", "이에요./예요. (or입니다.,이다./다.,이야./야.)"
+    ],
+    "example": ["저", "는", "학생", "이에요."],
+    "jp": "例文：저는 학생이에요. / 私は学生です。"
+  },
+  "distractors": [
+    "저","는","학생","이에요","은","예요","그녀","의사","그","회사원",
+    "이분","선생님","그분","간호사","저분","아이돌","이 사람","가수",
+    "그 사람","제 오빠","저 사람","제 형","이것","사과","그것","한국어 책",
+    "저것","택시","여기","병원","거기","학교","저기","공원"
+  ],
+  "extraDistractors": 4,
+  "items": [
+    {
+      "title": "問題(韓国語訳)1：私は学生です。",
+      "words": ["저", "는", "학생", "이에요"],
+      "メモ": "母音の後:는, 子音の後:은; 子音の後:이에요, 母音の後:예요"
+    },
+    {
+      "title": "問題(韓国語訳)2：彼女は医師です。",
+      "words": ["그녀", "는", "의사", "예요"],
+      "メモ": "이에요/예요：非格式丁寧体（日常会話で使用）"
+    },
+    {
+      "title": "問題(韓国語訳)3：彼は会社員です。",
+      "words": ["그", "는", "회사원", "이에요"],
+      "メモ": "그는 회사원입니다.(彼は会社員です。)"
+    },
+    {
+      "title": "問題(韓国語訳)4：この方は先生です。",
+      "words": ["이분", "은", "선생님", "이에요"],
+      "メモ": "입니다: 格式丁寧体（公的・改まった場面で使用）"
+    },
+    {
+      "title": "問題(韓国語訳)5：その方は看護師です。",
+      "words": ["그분", "은", "간호사", "예요"],
+      "メモ": "그분은 간호사다.(その方は看護師だ。)"
+    },
+    {
+      "title": "問題(韓国語訳)6：あの方はアイドルです。",
+      "words": ["저분", "은", "아이돌", "이에요"],
+      "メモ": "이다/다: 非丁寧体・普通体（主に文章で使用。目下等無遠慮対象に使用。）"
+    },
+    {
+      "title": "問題(韓国語訳)7：この人は歌手です。",
+      "words": ["이 사람", "은", "가수", "예요"],
+      "メモ": "(이)다: 子音の後=이다, 母音の後=다"
+    },
+    {
+      "title": "問題(韓国語訳)8：その人は私の兄です。",
+      "words": ["그 사람", "은", "제 오빠", "예요"],
+      "メモ": "오빠: 妹からの呼び方"
+    },
+    {
+      "title": "問題(韓国語訳)9：あの人は私の兄です。",
+      "words": ["저 사람", "은", "제 형", "이에요"],
+      "メモ": "형: 弟からの呼び方"
+    },
+    {
+      "title": "問題(韓国語訳)10：これはリンゴです。",
+      "words": ["이것", "은", "사과", "예요"],
+      "メモ": "이건 사과야.(これはりんごだよ。)〔이건: 이것은の縮約形〕"
+    },
+    {
+      "title": "問題(韓国語訳)11：それは韓国語の本です。",
+      "words": ["그것", "은", "한국어 책", "이에요"],
+      "メモ": "이야(子音後)/야(母音後): 親しい相手等に対するくだけた表現"
+    },
+    {
+      "title": "問題(韓国語訳)12：あれはタクシーです。",
+      "words": ["저것", "은", "택시", "예요"],
+      "メモ": "저건 택시예요.(あれはタクシーです。)〔저건: 저것은の縮約形〕"
+    },
+    {
+      "title": "問題(韓国語訳)13：ここは病院です。",
+      "words": ["여기", "는", "병원", "이에요"],
+      "メモ": "여긴 병원이에요.(ここは病院です。)〔여긴: 여기는の縮約形〕"
+    },
+    {
+      "title": "問題(韓国語訳)14：そこは学校です。",
+      "words": ["거기", "는", "학교", "예요"],
+      "メモ": "이곳(그곳,저곳): 一般的で固めの表現、여기(거기,저기): 会話調"
+    },
+    {
+      "title": "問題(韓国語訳)15：あそこは公園です。",
+      "words": ["저기", "는", "공원", "이에요"],
+      "メモ": "저긴 공원이에요. (あそこは公園です。)〔저긴: 저기는の縮約形〕"
+    }
+  ]
+},
+
           {
             "id": "np-02-neg",
             "order": 20,
