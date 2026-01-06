@@ -1354,7 +1354,9 @@ if ($bar) $bar.style.width = `${ total > 1 ? ((pos - 1) / (total - 1)) * 100 : 1
         $("#speakQ").onclick = () => {
           const L = LESSONS[state.lessonIndex],
             q = L.items[state.qIndex];
-          speakZh(q.words.join(" "));
+          speakKo(q.words.join(" "));
+
+
         };
         const slots = $("#slots");
         slots.ondragover = (e) => e.preventDefault();
@@ -1385,11 +1387,11 @@ if ($bar) $bar.style.width = `${ total > 1 ? ((pos - 1) / (total - 1)) * 100 : 1
        // 既存: loadJson(); の直後に続けて入れる
 if (speechSynthesis.getVoices().length) {
   // すでに voices が揃っていれば新ロジックで初期化
-  try { window.steplingoTTS?.initZhTTS?.(); } catch {}
+  try { window.steplingoTTS?.initKoTTS?.(); } catch {}
 } else {
   // iOS/Safari など遅延ロードに対応（1回だけ）
   speechSynthesis.addEventListener('voiceschanged', () => {
-    try { window.steplingoTTS?.initZhTTS?.(); } catch {}
+    try { window.steplingoTTS?.initKoTTS?.(); } catch {}
   }, { once: true });
 }
 
