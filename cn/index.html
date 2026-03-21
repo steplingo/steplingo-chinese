@@ -6384,152 +6384,7 @@ if ('serviceWorker' in navigator) {
     <p class="pwa-hint-note">※この案内はしばらく表示しません（×で閉じると7日間非表示）。</p>
   </div>
 </div>
-<script>
-(function(){
-  const $btn = document.getElementById('pwaInstallBtn');
-  const $ios = document.getElementById('iosHint');
-  const $iosClose = $ios?.querySelector('.pwa-hint-close');
 
-  let deferredPrompt = null;
-
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  const ua = navigator.userAgent.toLowerCase();
-  const isIOS = /iphone|ipad|ipod/.test(ua);
-  // iOSはSafari以外でも最近は追加可能ですが、案内は広くiOS向けに出します
-  const isIOSBrowser = isIOS;
-
-  // --- 1) beforeinstallprompt 対応（Android/デスクトップ） ---
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // 既定バナーを抑止
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!isStandalone) {
-      $btn?.classList.remove('hidden');
-    }
-  });
-
-  $btn?.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    // accepted/dismissed
-    deferredPrompt = null;
-    $btn.classList.add('hidden');
-  });
-
-  window.addEventListener('appinstalled', () => {
-    $btn?.classList.add('hidden');
-    hideIOS(); // 万一出ていたら閉じる
-  });
-
-  // 既にインストール状態ならボタン/案内は出さない
-  if (isStandalone) {
-    $btn?.classList.add('hidden');
-    hideIOS();
-  }
-
-  // --- 2) iOS向け案内（7日間メモして非表示） ---
-  const DISMISS_KEY = 'ios_hint_dismissed_at';
-  const DAYS = 7;
-
-  function shouldShowIOSHint() {
-    if (!isIOSBrowser || isStandalone) return false;
-    const ts = Number(localStorage.getItem(DISMISS_KEY) || 0);
-    if (!ts) return true;
-    const days = (Date.now() - ts) / (1000*60*60*24);
-    return days >= DAYS;
-  }
-
-  function showIOS() { $ios?.classList.remove('hidden'); }
-  function hideIOS() { $ios?.classList.add('hidden'); }
-
-  if (shouldShowIOSHint()) {
-    // iOSはbeforeinstallpromptが来ないので、ページ表示後少しして案内を出す
-    setTimeout(showIOS, 700);
-  }
-
-  $iosClose?.addEventListener('click', () => {
-    localStorage.setItem(DISMISS_KEY, String(Date.now()));
-    hideIOS();
-  });
-})();
-</script>
-
-<script>
-(() => {
-  let deferredPrompt = null;
-
-  const $installBtn   = document.getElementById('installBtn');
-  const $iosGuide     = document.getElementById('iosGuide');
-  const $iosGuideClose= document.getElementById('iosGuideClose');
-
-  // --- 簡易UA判定（iOS Safariのときガイド表示） ---
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  const isiOS      = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isSafari   = /^((?!chrome|android).)*safari/i.test(ua);
-
-  // iOS Safariならモーダルを一度だけ見せる（好みで条件調整OK）
-  if (isiOS && isSafari) {
-    // 既にPWAで開いている（standalone）ならガイド不要
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    if (!isStandalone) {
-      // 1回表示したら覚える（localStorage）
-      const shown = localStorage.getItem('pwa_ios_guide_shown');
-      if (!shown) {
-        openIosGuide();
-        localStorage.setItem('pwa_ios_guide_shown', '1');
-      }
-    }
-  }
-
-  function openIosGuide() {
-    $iosGuide.hidden = false;
-    $iosGuide.setAttribute('aria-hidden', 'false');
-  }
-  function closeIosGuide() {
-    $iosGuide.hidden = true;
-    $iosGuide.setAttribute('aria-hidden', 'true');
-  }
-  $iosGuideClose?.addEventListener('click', closeIosGuide);
-  $iosGuide?.addEventListener('click', (e) => {
-    if (e.target === $iosGuide) closeIosGuide();
-  });
-
-  // --- beforeinstallprompt を横取りして自前ボタンで出す ---
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();            // 既定のバナーを抑止（コンソールに情報ログが出ますが正常）
-    deferredPrompt = e;
-    // iOSではボタンを出しても意味ないので、iOS以外で表示
-    if (!isiOS) $installBtn.hidden = false;
-  });
-
-  // ボタン → インストールプロンプト
-  $installBtn?.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    $installBtn.disabled = true;
-    try {
-      const { outcome } = await deferredPrompt.prompt();
-      // outcome: 'accepted' | 'dismissed'
-      // 任意：Google Analytics 等で outcome を記録してもOK
-    } catch (_) {
-      // ユーザー操作や一時的なエラー
-    } finally {
-      deferredPrompt = null;
-      // 1回出したら通常は隠す
-      $installBtn.hidden = true;
-      $installBtn.disabled = false;
-    }
-  });
-
-  // すでにインストール済み/スタンドアロン表示中ならボタン不要
-  const refreshInstallUI = () => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    if (isStandalone) $installBtn.hidden = true;
-  };
-  window.addEventListener('DOMContentLoaded', refreshInstallUI);
-  window.matchMedia('(display-mode: standalone)').addEventListener?.('change', refreshInstallUI);
-})();
-</script>
 <!-- Paywall Modal -->
 <div id="paywallBackdrop" class="paywall-modal-backdrop" hidden>
   <div class="paywall-modal" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
@@ -6566,5 +6421,33 @@ if ('serviceWorker' in navigator) {
 </footer>
 
 <script src="/cn/app.js?v=1"></script>
+<script>
+(function () {
+  function currentLessonNeedsPro() {
+    const lessonSel = document.getElementById("lessonSel");
+    if (!lessonSel) return false;
+    const idx = Number(lessonSel.value || 0);
+    return idx > 5;
+  }
 
+  function guardLessonScreen() {
+    const hasPro = localStorage.getItem("steplingo_pro_chinese") === "true";
+    const body = document.body;
+    if (!body) return;
+
+    const isLessonRoute =
+      body.classList.contains("route-lesson") ||
+      window.location.hash === "#lesson";
+
+    if (!isLessonRoute) return;
+    if (!currentLessonNeedsPro()) return;
+    if (hasPro) return;
+
+    window.location.replace("/cn/#steps");
+  }
+
+  document.addEventListener("DOMContentLoaded", guardLessonScreen);
+  window.addEventListener("pageshow", guardLessonScreen);
+})();
+</script>
 </body></html>
