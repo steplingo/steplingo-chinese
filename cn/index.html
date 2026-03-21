@@ -6369,12 +6369,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-<!-- === PWA Install UI === -->
-<button id="pwaInstallBtn" class="pwa-install hidden" aria-label="アプリをインストール">
-  <!-- シンプルなダウンロードアイコン -->
-  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18-5.5 5.5 1.42 1.42L11 6.84V16h2V6.84l3.08 3.08 1.42-1.42L12 2z" fill="currentColor"/></svg>
-  <span>アプリをインストール</span>
-</button>
+
 
 <!-- iOS向けインストール案内（モーダル） -->
 <div id="iosHint" class="pwa-hint hidden" role="dialog" aria-modal="true" aria-labelledby="iosHintTitle">
@@ -6459,27 +6454,7 @@ if ('serviceWorker' in navigator) {
   });
 })();
 </script>
-<!-- インストールUI（デスクトップ/Android向け） -->
-<button id="installBtn" class="pwa-install-btn" hidden aria-label="アプリをインストール">
-  アプリをインストール
-</button>
 
-<!-- iOS ガイド：モーダル -->
-<div id="iosGuide" class="pwa-modal" hidden aria-hidden="true" role="dialog" aria-labelledby="iosGuideTitle">
-  <div class="pwa-modal__dialog" role="document">
-    <h2 id="iosGuideTitle" class="pwa-modal__title">iPhone / iPad に追加</h2>
-    <p class="pwa-modal__lead">Safari で次の手順でホーム画面に追加できます。</p>
-    <ol class="pwa-modal__steps">
-      <li>Safari でこのページを開く</li>
-      <li>共有ボタン（□に↑）をタップ</li>
-      <li>「ホーム画面に追加」を選ぶ</li>
-      <li>右上の「追加」で完了</li>
-    </ol>
-    <div class="pwa-modal__actions">
-      <button id="iosGuideClose" class="pwa-btn-secondary" aria-label="閉じる">閉じる</button>
-    </div>
-  </div>
-</div>
 <script>
 (() => {
   let deferredPrompt = null;
