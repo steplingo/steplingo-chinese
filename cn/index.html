@@ -15,94 +15,9 @@
       .replace(/\[i\](.+?)\[\/i\]/g, '<i>$1</i>');
   }
 </script>
-<link rel="manifest" href="../manifest.json">
 
 <meta name="theme-color" content="#304ffe">
-<style>
-  .hidden { display: none !important; }
-  .hl { color: red; font-weight: 600; }
 
-  /* インストールボタン（右下フローティング） */
-  .pwa-install{
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .75rem 1rem;
-    border: none;
-    border-radius: 999px;
-    background: #2b7cff;
-    color: #fff;
-    font-weight: 600;
-    box-shadow: 0 6px 20px rgba(0,0,0,.15);
-    cursor: pointer;
-    z-index: 1000;
-  }
-  .pwa-install:active { transform: translateY(1px); opacity: .95; }
-
-  /* iOS案内のモーダル */
-  .pwa-hint{
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.35);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1000;
-  }
-  .pwa-hint-box{
-    width: min(92vw, 520px);
-    background: #fff;
-    border-radius: 16px;
-    padding: 20px 20px 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.2);
-    position: relative;
-  }
-  .pwa-hint-close{
-    position: absolute; right: 12px; top: 10px;
-    width: 34px; height: 34px; border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    border: none; background: #f3f4f6; cursor: pointer; font-size: 20px;
-  }
-  .pwa-hint h3{ margin: 0 0 .5rem; font-size: 1.1rem; }
-  .pwa-hint p{ margin: .4rem 0; line-height: 1.6; }
-  .pwa-hint-note{ color: #6b7280; font-size: .9rem; }
-  .ios-share{
-    display: inline-block; border: 2px solid #111; padding: 0 5px; border-radius: 4px;
-    font-weight: 700; font-family: system-ui, -apple-system, sans-serif;
-  }
-</style>
-<style>
-/* インストールボタン */
-.pwa-install-btn {
-  display:inline-flex; align-items:center; gap:.5rem;
-  padding:.75rem 1rem; border:none; border-radius:.6rem;
-  background:#2e7d32; color:#fff; font-weight:600; cursor:pointer;
-  box-shadow:0 4px 12px rgba(0,0,0,.12);
-  transition:transform .06s ease, filter .15s ease;
-}
-.pwa-install-btn:hover { filter:brightness(1.05); }
-.pwa-install-btn:active { transform:translateY(1px); }
-
-/* モーダル */
-.pwa-modal {
-  position:fixed; inset:0; display:grid; place-items:center;
-  background:rgba(0,0,0,.42); z-index:9999;
-}
-.pwa-modal[hidden]{ display:none; }
-.pwa-modal__dialog {
-  width:min(92vw, 560px); background:#fff; color:#222;
-  border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.2);
-}
-.pwa-modal__title { margin:0 0 .5rem; font-size:1.25rem; }
-.pwa-modal__lead  { margin:.25rem 0 1rem; color:#444; }
-.pwa-modal__steps { margin:.25rem 0 1.25rem 1.25rem; }
-.pwa-modal__actions { display:flex; justify-content:flex-end; gap:.5rem; }
-.pwa-btn-secondary {
-  padding:.6rem 1rem; border:1px solid #ddd; border-radius:.6rem;
-  background:#fafafa; cursor:pointer;
-}
-.pwa-btn-secondary:hover{ background:#f2f2f2; }
-</style>
 <link rel="icon" href="../icons/icon-192.png" type="image/png">
 <style>
 /* --- Paywall / Lock UI --- */

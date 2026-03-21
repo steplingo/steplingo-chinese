@@ -32,34 +32,27 @@
   </style>
 </head>
 <body>
-
   <h2>🎉 ご購入ありがとうございます！</h2>
   <p>Steplingo Chinese プレミアム版が有効になりました。</p>
   <p>数秒後にアプリに自動で戻ります。</p>
 
-  <!-- 自動リダイレクトがうまく動かない場合の手動リンク -->
-  <a class="btn" href="/cn/">アプリに戻る</a>
+  <a class="btn" href="/cn/#home">アプリに戻る</a>
 
   <script>
     (function () {
       try {
-        // ✅ 中国語アプリ用の PRO フラグを保存
         localStorage.setItem("steplingo_pro_chinese", "true");
 
-        // ✅ 旧システム用（index.html の applyLocks が見るフラグ）
-      localStorage.setItem("premium", "1");  
+        // 旧キーは削除して混線防止
+        localStorage.removeItem("premium");
+        localStorage.removeItem("userHasPro");
 
-        // デバッグ用ログ（本番でもあってOK）
         console.log("[Steplingo] Purchase success! steplingo_pro_chinese = true");
       } catch (e) {
         console.error("Failed to set PRO flag:", e);
       }
 
-      // アプリ TOP（/cn/）へ自動リダイレクト
-      // 少しだけ待ってから戻したい場合は setTimeout を使ってもOK
-      window.location.href = "/cn/#home";
-
-      // ※ history を汚したくないので location.replace を使用
+      window.location.replace("/cn/#home");
     })();
   </script>
 </body>

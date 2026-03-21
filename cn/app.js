@@ -1,72 +1,185 @@
-// ===== PRO フラグキー =====
+// ===== PRO フラグキー（中国語専用）=====
 const PRO_KEY = "steplingo_pro_chinese";
-
 
 // ===== Stripe 決済URL =====
 const STRIPE_URL_TEST = "https://buy.stripe.com/test_9B6dR83007ep8eG3R6bQY01";
-const STRIPE_URL_PROD = "https://buy.stripe.com/7sYaEW1VJfgA6lF9bPcZa00";  // 本番
+const STRIPE_URL_PROD = "https://buy.stripe.com/7sYaEW1VJfgA6lF9bPcZa00";
 
 // ★開発者用スイッチ
-const USE_TEST_STRIPE = false; // ← テスト中は true
-// const USE_TEST_STRIPE = false; // 本番にする時
+const USE_TEST_STRIPE = false;
 
 const STRIPE_URL = USE_TEST_STRIPE ? STRIPE_URL_TEST : STRIPE_URL_PROD;
 
-
-// ====== PRO 判定 ======
-function isProUser() {
-  return localStorage.getItem(PRO_KEY) === "true";
+// ===== 共通 =====
+function getProFlag() {
+  try {
+    return localStorage.getItem(PRO_KEY) === "true";
+  } catch (_) {
+    return false;
+  }
 }
 
+function setProFlag(value) {
+  try {
+    if (value) {
+      localStorage.setItem(PRO_KEY, "true");
+    } else {
+      localStorage.removeItem(PRO_KEY);
+    }
+  } catch (_) {}
+}
 
-// ====== DOM 読み込み ======
-document.addEventListener("DOMContentLoaded", () => {
+function isProStepCard(card) {
+  return card?.getAttribute("data-pro") === "true";
+}
 
-  // === Stripe 購入後（success.html→戻って来た時） ===
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("pro") === "1") {
-    localStorage.setItem(PRO_KEY, "true");
-    window.location.replace("/cn/#home");
-    return;
+function getPaywallElements() {
+  return {
+    backdrop: document.getElementById("paywallBackdrop"),
+    buyNowBtn: document.getElementById("buyNowBtn"),
+  };
+}
+
+function openPaywall() {
+  const { backdrop, buyNowBtn } = getPaywallElements();
+
+  if (buyNowBtn) {
+    buyNowBtn.setAttribute("href", STRIPE_URL);
   }
 
-  const pro = isProUser();
-  console.log("[Steplingo] PRO:", pro);
+  if (backdrop) {
+    backdrop.hidden = false;
+    backdrop.style.display = "flex";
+  } else {
+    window.location.href = STRIPE_URL;
+  }
+}
 
-  // === ロック処理（PRO ではない場合のみ） ===
-  document.querySelectorAll("[data-pro]").forEach(btn => {
-    const requirePro = btn.getAttribute("data-pro") === "true";
+function closePaywall() {
+  const { backdrop } = getPaywallElements();
+  if (backdrop) {
+    backdrop.hidden = true;
+    backdrop.style.display = "none";
+  }
+}
 
-    if (!requirePro) return; // 無料ステップ
+function bindPaywall() {
+  const { backdrop, buyNowBtn } = getPaywallElements();
 
-    if (!pro) {
-      btn.classList.add("locked");
-      btn.addEventListener("click", (event) => {
-        event.preventDefault();
-        window.location.href = STRIPE_URL;
-      });
-    }
-  });
-
-
-  // === Paywall モーダル（purchase ボタン） ===
-  const buyNowBtn = document.getElementById("buyNowBtn");
-  if (buyNowBtn) {
+  if (buyNowBtn && !buyNowBtn.dataset.bound) {
+    buyNowBtn.dataset.bound = "true";
+    buyNowBtn.setAttribute("href", STRIPE_URL);
     buyNowBtn.addEventListener("click", (event) => {
       event.preventDefault();
       window.location.href = STRIPE_URL;
     });
   }
+
+  if (backdrop && !backdrop.dataset.bound) {
+    backdrop.dataset.bound = "true";
+    backdrop.addEventListener("click", (event) => {
+      if (event.target === backdrop) {
+        closePaywall();
+      }
+    });
+  }
+}
+
+function applyStepLocks() {
+  const pro = getProFlag();
+
+  document.querySelectorAll(".step-btn[data-pro]").forEach((card) => {
+    const requirePro = isProStepCard(card);
+    const goLink = card.querySelector("[data-go-step]");
+
+    if (!requirePro) {
+      card.classList.remove("locked");
+      return;
+    }
+
+    if (pro) {
+      card.classList.remove("locked");
+      if (goLink) {
+        goLink.removeAttribute("aria-disabled");
+      }
+      return;
+    }
+
+    card.classList.add("locked");
+
+    if (goLink && !goLink.dataset.boundLock) {
+      goLink.dataset.boundLock = "true";
+      goLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openPaywall();
+      });
+    }
+
+    if (!card.dataset.boundLockCard) {
+      card.dataset.boundLockCard = "true";
+      card.addEventListener("click", (event) => {
+        const clickedGo = event.target.closest("[data-go-step]");
+        if (clickedGo) return;
+        event.preventDefault();
+        openPaywall();
+      });
+    }
+  });
+}
+
+function guardLessonRoute() {
+  const body = document.body;
+  if (!body) return;
+
+  const isLessonRoute =
+    body.classList.contains("route-lesson") ||
+    window.location.hash === "#lesson";
+
+  if (!isLessonRoute) return;
+
+  const lessonSel = document.getElementById("lessonSel");
+  if (!lessonSel) return;
+
+  const currentIndex = Number(lessonSel.value || 0);
+
+  // 中国語版の無料範囲：step index 0〜5
+  const isFreeLesson = currentIndex <= 5;
+  const hasPro = getProFlag();
+
+  if (isFreeLesson || hasPro) return;
+
+  closePaywall();
+  window.location.replace("/cn/#steps");
+}
+
+function syncProState() {
+  window.SteplingoPro = getProFlag();
+}
+
+function runAllGuards() {
+  syncProState();
+  bindPaywall();
+  applyStepLocks();
+  guardLessonRoute();
+}
+
+// ===== 起動時 =====
+document.addEventListener("DOMContentLoaded", () => {
+  runAllGuards();
 });
 
+// ===== 戻る復元対策 =====
+window.addEventListener("pageshow", () => {
+  runAllGuards();
+});
 
-// ====== 全体で使う PRO API ======
-window.SteplingoPro = isProUser();
-
-
-// ====== ステップ解放チェック関数 ======
-window.isStepUnlocked = function(stepId) {
+// ===== 外部から使うAPI =====
+window.isStepUnlocked = function (stepId) {
   const FREE_STEPS = ["0-1", "0-2", "0-3", "1", "2", "3"];
   if (FREE_STEPS.includes(stepId)) return true;
-  return window.SteplingoPro;
+  return getProFlag();
 };
+
+window.SteplingoSetPro = setProFlag;
+window.SteplingoGetPro = getProFlag;
