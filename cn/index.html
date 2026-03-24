@@ -5430,9 +5430,12 @@ window.__applyLocks__ = applyLocks;
 
   view.forEach(({ls, baseIndex}, i) => {
 const card = document.createElement('div');
-card.className = 'card step-btn';  // ← ここ重要
+card.className = 'card step-btn';
 card.setAttribute('data-step', String(baseIndex));
-card.setAttribute('data-pro', baseIndex > 5 ? 'true' : 'false');
+
+// 一覧表示の先頭6枚だけ free
+const isProCard = i >= 6;
+card.setAttribute('data-pro', isProCard ? 'true' : 'false');
 
 const h = document.createElement('h3');
 h.textContent = ls.title || (`Step${i+1}`);
