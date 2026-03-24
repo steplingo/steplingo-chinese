@@ -5429,8 +5429,10 @@ window.__applyLocks__ = applyLocks;
                       .sort((a,b)=>((a.ls?.order ?? 99999) - (b.ls?.order ?? 99999)));
 
   view.forEach(({ls, baseIndex}, i) => {
-  const card = document.createElement('div');
-card.className = 'card';
+const card = document.createElement('div');
+card.className = 'card step-btn';  // ← ここ重要
+card.setAttribute('data-step', String(baseIndex));
+card.setAttribute('data-pro', baseIndex > 5 ? 'true' : 'false');
 
 const h = document.createElement('h3');
 h.textContent = ls.title || (`Step${i+1}`);
@@ -5439,16 +5441,11 @@ const go = document.createElement('a');
 go.href = '#lesson';
 go.className = 'btn go';
 go.textContent = 'このStepで学習';
-
-// ★ここが重要（PRO判定）
 go.setAttribute('data-go-step', String(baseIndex));
-if (baseIndex > 5) {
-  go.setAttribute('data-pro', 'true');
-}
 
 card.appendChild(h);
 card.appendChild(go);
-wrap.appendChild(card); 
+wrap.appendChild(card);
   });
 }
 
