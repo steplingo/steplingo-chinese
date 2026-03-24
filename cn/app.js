@@ -183,3 +183,4 @@ window.isStepUnlocked = function (stepId) {
 
 window.SteplingoSetPro = setProFlag;
 window.SteplingoGetPro = getProFlag;
+window.SteplingoRefreshGuards = runAllGuards;
