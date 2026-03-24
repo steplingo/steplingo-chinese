@@ -97,34 +97,46 @@ function applyStepLocks() {
       return;
     }
 
-    if (pro) {
-      card.classList.remove("locked");
-      if (goLink) {
-        goLink.removeAttribute("aria-disabled");
-      }
-      return;
-    }
+if (pro) {
+  card.classList.remove("locked");
 
-    card.classList.add("locked");
-
-    if (goLink && !goLink.dataset.boundLock) {
-      goLink.dataset.boundLock = "true";
-      goLink.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        openPaywall();
-      });
+  if (goLink) {
+    if (goLink.dataset.hrefBackup) {
+      goLink.setAttribute("href", goLink.dataset.hrefBackup);
     }
+    goLink.removeAttribute("aria-disabled");
+  }
+  return;
+}
 
-    if (!card.dataset.boundLockCard) {
-      card.dataset.boundLockCard = "true";
-      card.addEventListener("click", (event) => {
-        const clickedGo = event.target.closest("[data-go-step]");
-        if (clickedGo) return;
-        event.preventDefault();
-        openPaywall();
-      });
-    }
+card.classList.add("locked");
+
+if (goLink) {
+  if (!goLink.dataset.hrefBackup && goLink.getAttribute("href")) {
+    goLink.dataset.hrefBackup = goLink.getAttribute("href");
+  }
+  goLink.setAttribute("href", "javascript:void(0)");
+  goLink.setAttribute("aria-disabled", "true");
+
+  if (!goLink.dataset.boundLock) {
+    goLink.dataset.boundLock = "true";
+    goLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openPaywall();
+    });
+  }
+}
+
+if (!card.dataset.boundLockCard) {
+  card.dataset.boundLockCard = "true";
+  card.addEventListener("click", (event) => {
+    const clickedGo = event.target.closest("[data-go-step]");
+    if (clickedGo) return;
+    event.preventDefault();
+    openPaywall();
+  });
+}
   });
 }
 
