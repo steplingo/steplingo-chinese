@@ -5272,7 +5272,106 @@ renderAll();
 }
     </script>
    <script>
+/** ====== 料金/ペイウォール最小実装（貼るだけ） ====== **/
 
+// 3-1) 無料ステップID（例：発音0-1〜0-3, 構文1〜5）
+window.freeSteps = Array.isArray(window.freeSteps) ? window.freeSteps : ['0','1','2','3','4','5'];
+const freeSteps  = window.freeSteps;
+
+
+// 3-2) 簡易プレミアム判定（本番は認証＋サーバフラグ）
+function userHasPremium(){
+  const q = new URL(location.href).searchParams;
+  if (q.has('premium')) {
+    const v = q.get('premium') === '1' ? '1' : '0';
+    localStorage.setItem('premium','1'===v?'1':'0');
+    history.replaceState({},'', location.pathname + location.hash); // URLを元に戻す
+  }
+  return localStorage.getItem('premium') === '1';
+}
+
+// 3-3）UIロック適用（Step 一覧のカードに .locked を付与）
+function applyLocks(forceReset = false) {
+
+    const list = document.querySelector('#step-list')
+          || document.querySelector('[data-step-list]')
+          || document;
+
+    const cards = list.querySelectorAll('[data-go-step]');
+
+    const norm = v => String(v ?? '').trim();
+
+    // ★ FREE の 6 つだけを使用（クリックされた step は絶対に含めない）
+    const freeSet = new Set((window.freeSteps || []).map(norm));
+
+    cards.forEach(btn => {
+        const stepId = norm(btn.getAttribute('data-go-step'));
+        const isFree = freeSet.has(stepId);
+
+        const isPremium = (typeof userHasPremium === 'function' && userHasPremium());
+
+        const locked = (!isFree && !isPremium);
+        const card = btn.closest('.card') || btn;
+
+        if (locked) {
+            // ロック状態にする
+            card.classList.add('locked');
+
+            // Aタグの href を消して遷移不可にする
+            if (btn.tagName === 'A') {
+                if (!btn.__hrefBackup && btn.hasAttribute('href')) {
+                    btn.__hrefBackup = btn.getAttribute('href');
+                }
+                btn.removeAttribute('href');
+            }
+
+            btn.setAttribute('data-locked', '1');
+        } else {
+            // アンロック
+            card.classList.remove('locked');
+
+            if (btn.tagName === 'A' && btn.__hrefBackup) {
+                btn.setAttribute('href', btn.__hrefBackup);
+            }
+            btn.removeAttribute('data-locked');
+        }
+    });
+}
+
+window.__applyLocks__ = applyLocks;
+
+// 3-4) 課金モーダル表示/非表示
+function openPaywall(){
+  const bp = document.getElementById('paywallBackdrop'); if(!bp) return;
+  bp.hidden = false; bp.style.display = 'flex';
+  bp.classList.add('open');
+  document.body.classList.add('modal-open');
+  window.__paywallOpen__ = true;
+}
+
+function closePaywall(){
+  const bp = document.getElementById('paywallBackdrop'); if(!bp) return;
+  bp.hidden = true; bp.style.display = 'none';
+  bp.classList.remove('open');
+  document.body.classList.remove('modal-open');
+  window.__paywallOpen__ = false;
+}
+
+// 3–5) クリック制御（キャプチャ段階で先取り）
+
+// 3-6）モーダルの “あとで” と背景クリックで閉じる
+document.addEventListener('click', (ev) => {
+
+    // 「あとで」ボタン
+    const cancelBtn = document.getElementById('payCancel');
+    if (cancelBtn && (ev.target === cancelBtn || cancelBtn.contains(ev.target))) {
+        ev.preventDefault();
+        closePaywall();
+        applyLocks();
+        return;
+    }
+
+});
 
 // 3-7) Step一覧が描画されたあとにロック反映（下の #4 参照）
 window.__applyLocks__ = applyLocks;
@@ -5429,30 +5528,20 @@ window.__applyLocks__ = applyLocks;
                       .sort((a,b)=>((a.ls?.order ?? 99999) - (b.ls?.order ?? 99999)));
 
   view.forEach(({ls, baseIndex}, i) => {
-const card = document.createElement('div');
-card.className = 'card step-btn';
-card.setAttribute('data-step', String(baseIndex));
-
-// 一覧表示の先頭6枚だけ free
-const isProCard = i >= 6;
-card.setAttribute('data-pro', isProCard ? 'true' : 'false');
-
-const h = document.createElement('h3');
-h.textContent = ls.title || (`Step${i+1}`);
-
-const go = document.createElement('a');
-go.href = '#lesson';
-go.className = 'btn go';
-go.textContent = 'このStepで学習';
-go.setAttribute('data-go-step', String(baseIndex));
-
-card.appendChild(h);
-card.appendChild(go);
-wrap.appendChild(card);
+    const card = document.createElement('div');
+    card.className = 'card';
+    const h = document.createElement('h3');
+    h.textContent = ls.title || (`Step${i+1}`);
+    const go = document.createElement('a');
+    go.href = '#lesson';
+    go.className = 'btn go';
+    go.textContent = 'このStepで学習';
+    // IMPORTANT: use baseIndex (index in window.lessons), not display index
+    go.setAttribute('data-go-step', String(baseIndex));
+    card.appendChild(h);
+    card.appendChild(go);
+    wrap.appendChild(card);
   });
-  if (window.SteplingoRefreshGuards) {
-  window.SteplingoRefreshGuards();
-}
 }
 
 
